@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+
+
+<html style="height: 100%; width: 100%">
+
+<head>
+
+  <title>Data Comets</title>
+
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta charset="utf-8" />
+
+  <!-- leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA==" crossorigin=""></script>
+
+  <!-- Materialize-->
+  <script src="../materialize/js/materialize.js"></script>
+  <link rel="stylesheet" href="../materialize/css/materialize.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- D3 -->
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+
+</head>
+
+<body>
+  <div style="width: 30%; height: 90%; overflow: auto; float: right">
+    <div class="navbar-fixed">
+      <nav style="width: 30%">
+        <div class="nav-wrapper">
+          <form class="left" style="width: 60%">
+            <div class="input-field">
+              <input id="search" type="search" required>
+              <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+              <i class="material-icons">close</i>
+            </div>
+          </form>
+          <ul class="right">
+            <li><a><i class="material-icons">arrow_upward</i></a></li>
+            <li><a><i class="material-icons">unfold_less</i></a></li>
+            <li><a><i class="material-icons">note_add</i></a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <ul class="collapsible expandable" id="tree"></ul>
+  </div>
+</body>
+
+<script src="main.js"></script>
+<script src="map.js"></script>
+<script src="timeline.js"></script>
+<script src="tree.js"></script>
