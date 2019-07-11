@@ -22,14 +22,79 @@
   <!-- D3 -->
   <script src="https://d3js.org/d3.v5.min.js"></script>
 
+  <link rel="stylesheet" type="text/css" href="style.css">
+
 </head>
 
-<body>
-  <div style="width: 30%; height: 90%; overflow: auto; float: right">
+<body style=" height: 100%; margin: 0; padding: 0 ">
+
+
+
+  <ul id="slide-out" class="sidenav">
+    <li>
+      <div class="user-view">
+        <div class="background">
+          
+        </div>
+       
+      </div>
+    </li>
+    <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
+    <li><a href="#!">Second Link</a></li>
+    <li>
+      <div class="divider"></div>
+    </li>
+    <li><a class="subheader">Subheader</a></li>
+    <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+  </ul>
+
+
+  <div class="z-depth-1" id="map-canvas" style="position: relative; z-index: 1; width:70%; height: 90%; float: left">
+
+    <a style="position: relative; z-index: 2; float: left; margin-top: 10px; margin-left: 10px; color: white" href="#" data-target="slide-out" class="sidenav-trigger">
+      <i class="material-icons small">menu</i></a>
+
+    <div class="row">
+      <div class="switch" style="position: relative; z-index: 2; float: right; margin-top: 10px; margin-right: 25px">
+        <label style="color: white; font-size: 15px">
+          Ghost: Off
+          <input id='ghostSwitch' type="checkbox">
+          <span class="lever"></span>
+          On
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="switch" style="position: relative; z-index: 2; float: right; margin-right: 26px">
+        <label style="color: white; font-size: 15px">
+          Width: Off
+          <input id='widthSwitch' type="checkbox">
+          <span class="lever"></span>
+          On
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="switch" style="position: relative; z-index: 2; float: right; margin-right: 10px">
+        <label style="color: white; font-size: 15px">
+          Scale: Global
+          <input id='colorSwitch' type="checkbox">
+          <span class="lever"></span>
+          Local
+        </label>
+      </div>
+      <div class="tooltip"></div>
+    </div>
+    
+  </div>
+  <div id='timeline-container' style="height: 10%; width: 70%; bottom: 0px; position: absolute;"> </div>
+  
+
+  <div id='tree-container' style="width: 30%; height: 100%; overflow: auto; float: right;">
     <div class="navbar-fixed">
-      <nav style="width: 30%">
+      <nav class="nav-extended" style="width: 30%">
         <div class="nav-wrapper">
-          <form class="left" style="width: 60%">
+          <form class="left" style="width: 60%; height: 64px">
             <div class="input-field">
               <input id="search" type="search" required>
               <label class="label-icon" for="search"><i class="material-icons">search</i></label>
@@ -42,9 +107,20 @@
             <li><a><i class="material-icons">note_add</i></a></li>
           </ul>
         </div>
+        <div class="nav-content">
+          <ul class="tabs tabs-transparent tabs-fixed-width">
+            <li class="tab"><a class="active" href="#pinned">Pinned</a></li>
+            <li class="tab"><a href="#all">All</a></li>
+          </ul>
+        </div>
       </nav>
     </div>
-    <ul class="collapsible expandable" id="tree"></ul>
+    <div  style="margin-top: 49px; margin-left: 0px">
+      <div id="all" >
+        <ul class="collapsible expandable" id="tree"></ul>
+      </div>
+     <div id='pinned' class="collapsible" style="width 100%;" ></div>
+    </div>
   </div>
 </body>
 
@@ -52,3 +128,4 @@
 <script src="map.js"></script>
 <script src="timeline.js"></script>
 <script src="tree.js"></script>
+

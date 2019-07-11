@@ -1,5 +1,26 @@
-const Tree = (function (dispatch, data) {
+const Tree = (function (dispatch, data, dimensions) {
 
+  let treeLineChartSpec = {
+    margin: {
+      top: 20,
+      right: 10,
+      bottom: 30,
+      left: 30
+    },
+    width: 350,
+    height: 100
+  }
+
+  let pinnedLineChartSpec = {
+    margin: {
+      top: 50,
+      right: 20,
+      bottom: 30,
+      left: 80
+    },
+    width: 350,
+    height: 100
+  }
 
   console.log('tree')
 
@@ -37,7 +58,7 @@ const Tree = (function (dispatch, data) {
 
   var ul = d3.select('#tree');
 
-  let logs = Object.keys(data).splice(0, 3);
+  let logs = Object.keys(data) //.splice(0, 3);
 
   let recordXs = [];
 
@@ -55,6 +76,8 @@ const Tree = (function (dispatch, data) {
     .attr('class', "collapsible-header")
     .html(String);
 
+
+  
   for (let i = 0; i < logs.length; i++) {
     let log = logs[i];
     let singles = [];
@@ -81,7 +104,7 @@ const Tree = (function (dispatch, data) {
             data: log,
             x: "timestamp",
             y: record
-          });
+          }, treeLineChartSpec);
           recordXs.push(x);
         } else if (record != "timestamp") {
           singles.push(record)
@@ -113,31 +136,57 @@ const Tree = (function (dispatch, data) {
       }
     }
   }
-
   
 
+  lineChartGen('pinned', {
+    data: 'vehicle_gps_position',
+    x: 'timestamp',
+    y: 'alt'
+  }, pinnedLineChartSpec);
+  
+  lineChartGen('pinned', {
+    data: 'vehicle_global_position',
+    x: 'timestamp',
+    y: 'alt'
+  }, pinnedLineChartSpec);
+  
+  lineChartGen('pinned', {
+    data: 'vehicle_air_data',
+    x: 'timestamp',
+    y: 'baro_alt_meter'
+  }, pinnedLineChartSpec);
+  
+   lineChartGen('pinned', {
+    data: 'actuator_controls_0',
+    x: 'timestamp',
+    y: 'control[3]'
+  }, pinnedLineChartSpec);
 
-  function lineChartGen(where, what) {
+
+
+  function lineChartGen(where, what, options) {
 
     df = data[what.data]
     //console.log(where)
     //console.log(what.data, what.x, what.y);
+    //console.log(df)
     let yVal = what.y;
     let xVal = what.x;
     let vals = [];
+
     for (let i = 0; i < df.length; i++) {
       vals.push(df[i][yVal]);
     }
 
     var margin = {
-        top: 20,
-        right: 10,
-        bottom: 30,
-        left: 30
+        top: options.margin.top,
+        right: options.margin.right,
+        bottom: options.margin.bottom,
+        left: options.margin.left
       },
-      width = 350 // Use the window's width 
+      width = options.width // Use the window's width 
       ,
-      height = 100 // Use the window's height
+      height = options.height // Use the window's height
 
     var svg = d3.select('#' + where)
       .append("svg")
@@ -163,8 +212,6 @@ const Tree = (function (dispatch, data) {
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x));
 
-
-
     var y = d3.scaleLinear()
       .domain(d3.extent(df, function (d) {
         return d[yVal];
@@ -186,9 +233,9 @@ const Tree = (function (dispatch, data) {
           return y(d[yVal])
         })
       )
-
-    return x
   }
+
+
 
   dispatch.call('openBranch', this, recordXs);
 
