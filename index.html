@@ -31,30 +31,76 @@
 
 
   <ul id="slide-out" class="sidenav">
-    <li>
-      <div class="user-view">
-        <div class="background">
-          
-        </div>
-       
-      </div>
-    </li>
-    <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
-    <li><a href="#!">Second Link</a></li>
+
     <li>
       <div class="divider"></div>
     </li>
-    <li><a class="subheader">Subheader</a></li>
-    <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+    <li><a class="subheader">Map Controls</a></li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='gpsRecordedSwitch' type="checkbox">
+          <span class="lever"></span>
+          GPS Positions Recorded
+        </label>
+      </div>
+    </li>
+   
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='gpsEstimatedSwitch' type="checkbox">
+          <span class="lever"></span>
+          GPS Positions Estimated
+        </label>
+      </div>
+    </li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='setPointSwitch' type="checkbox">
+          <span class="lever"></span>
+          Position Set Points
+        </label>
+      </div>
+    </li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='ghostSwitch' type="checkbox">
+          <span class="lever"></span>
+          Ghost Path
+        </label>
+      </div>
+    </li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='widthSwitch' type="checkbox">
+          <span class="lever"></span>
+          Width Encoding
+        </label>
+      </div>
+    </li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='colorSwitch' type="checkbox">
+          <span class="lever"></span>
+          Color Scale Range
+        </label>
+      </div>
+    </li>
+
   </ul>
 
 
-  <div class="z-depth-1" id="map-canvas" style="position: relative; z-index: 1; width:70%; height: 90%; float: left">
+  <div id="map-canvas" style="position: relative; z-index: 1; width:70%; height: 90%; float: left">
 
     <a style="position: relative; z-index: 2; float: left; margin-top: 10px; margin-left: 10px; color: white" href="#" data-target="slide-out" class="sidenav-trigger">
-      <i class="material-icons small">menu</i></a>
+      <i class="material-icons small">settings</i></a>
 
-    <div class="row">
+    <!--<div class="row">
       <div class="switch" style="position: relative; z-index: 2; float: right; margin-top: 10px; margin-right: 25px">
         <label style="color: white; font-size: 15px">
           Ghost: Off
@@ -84,11 +130,11 @@
         </label>
       </div>
       <div class="tooltip"></div>
-    </div>
-    
+    </div>-->
+
   </div>
   <div id='timeline-container' style="height: 10%; width: 70%; bottom: 0px; position: absolute;"> </div>
-  
+
 
   <div id='tree-container' style="width: 30%; height: 100%; overflow: auto; float: right;">
     <div class="navbar-fixed">
@@ -110,22 +156,23 @@
         <div class="nav-content">
           <ul class="tabs tabs-transparent tabs-fixed-width">
             <li class="tab"><a class="active" href="#pinned">Pinned</a></li>
-            <li class="tab"><a href="#all">All</a></li>
+            <li class="tab"><a  href="#all">All</a></li>
           </ul>
         </div>
       </nav>
     </div>
-    <div  style="margin-top: 49px; margin-left: 0px">
-      <div id="all" >
+    <div style="margin-top: 49px; margin-left: 0px">
+      <div id="all">
         <ul class="collapsible expandable" id="tree"></ul>
       </div>
-     <div id='pinned' class="collapsible" style="width 100%;" ></div>
+      <div id='pinned' class="collapsible" style="width 100%;"></div>
     </div>
   </div>
+  
+  <div id='test'></div>
 </body>
 
 <script src="main.js"></script>
 <script src="map.js"></script>
 <script src="timeline.js"></script>
 <script src="tree.js"></script>
-

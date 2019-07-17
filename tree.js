@@ -1,4 +1,6 @@
 const Tree = (function (dispatch, data, dimensions) {
+  
+  let chartNo = 0;
 
   let treeLineChartSpec = {
     margin: {
@@ -13,16 +15,16 @@ const Tree = (function (dispatch, data, dimensions) {
 
   let pinnedLineChartSpec = {
     margin: {
-      top: 50,
-      right: 20,
-      bottom: 30,
+      top: 20,
+      right: 0,
+      bottom: 40,
       left: 80
     },
-    width: 350,
-    height: 100
+    width: 500,
+    height: 200
   }
 
-  console.log('tree')
+  //console.log('tree')
 
   let activeBranches = [];
 
@@ -34,7 +36,7 @@ const Tree = (function (dispatch, data, dimensions) {
   });
 
   instance.onclick = function () {
-    console.log(instance.id)
+    //console.log(instance.id)
   }
 
   const allEqual = arr => arr.every(v => v === arr[0])
@@ -58,7 +60,7 @@ const Tree = (function (dispatch, data, dimensions) {
 
   var ul = d3.select('#tree');
 
-  let logs = Object.keys(data) //.splice(0, 3);
+  let logs = Object.keys(data).slice(8, 9);
 
   let recordXs = [];
 
@@ -77,7 +79,7 @@ const Tree = (function (dispatch, data, dimensions) {
     .html(String);
 
 
-  
+
   for (let i = 0; i < logs.length; i++) {
     let log = logs[i];
     let singles = [];
@@ -87,7 +89,7 @@ const Tree = (function (dispatch, data, dimensions) {
       .attr("id", log + '-body');
 
 
-    if (log != 'Overview') {
+    if (log != 'ekf2_timestamps') {
       let log_data = data[log];
       let records = Object.keys(log_data[0]);
 
@@ -100,11 +102,11 @@ const Tree = (function (dispatch, data, dimensions) {
         }
 
         if (record != "timestamp" && !allEqual(vals)) {
-          let x = lineChartGen(log + "-body", {
+          let x = lineChartGen2(log + "-body", {
             data: log,
             x: "timestamp",
             y: record
-          }, treeLineChartSpec);
+          }, pinnedLineChartSpec);
           recordXs.push(x);
         } else if (record != "timestamp") {
           singles.push(record)
@@ -136,34 +138,33 @@ const Tree = (function (dispatch, data, dimensions) {
       }
     }
   }
-  
 
-  lineChartGen('pinned', {
+
+ let x1 =  lineChartGen2('pinned', {
     data: 'vehicle_gps_position',
     x: 'timestamp',
     y: 'alt'
   }, pinnedLineChartSpec);
   
-  lineChartGen('pinned', {
-    data: 'vehicle_global_position',
-    x: 'timestamp',
-    y: 'alt'
-  }, pinnedLineChartSpec);
+    lineChartGen2('pinned', {
+      data: 'vehicle_global_position',
+      x: 'timestamp',
+      y: 'alt'
+    }, pinnedLineChartSpec);
+
+    lineChartGen2('pinned', {
+      data: 'vehicle_air_data',
+      x: 'timestamp',
+      y: 'baro_alt_meter'
+    }, pinnedLineChartSpec);
+
+    lineChartGen2('pinned', {
+      data: 'actuator_controls_0',
+      x: 'timestamp',
+      y: 'control[3]'
+    }, pinnedLineChartSpec);
   
-  lineChartGen('pinned', {
-    data: 'vehicle_air_data',
-    x: 'timestamp',
-    y: 'baro_alt_meter'
-  }, pinnedLineChartSpec);
   
-   lineChartGen('pinned', {
-    data: 'actuator_controls_0',
-    x: 'timestamp',
-    y: 'control[3]'
-  }, pinnedLineChartSpec);
-
-
-
   function lineChartGen(where, what, options) {
 
     df = data[what.data]
@@ -236,7 +237,97 @@ const Tree = (function (dispatch, data, dimensions) {
   }
 
 
+  function lineChartGen2(where, what, spec) {
 
-  dispatch.call('openBranch', this, recordXs);
+    let chartData = data[what.data]
+    let yVal = what.y;
+    let xVal = what.x;
+    
+    let id = 'chart' + chartNo;
+
+    let margin = {
+      top: spec.margin.top,
+      right: spec.margin.right,
+      bottom: spec.margin.bottom,
+      left: spec.margin.left
+    }
+    let width = spec.width - margin.left - margin.right;
+    let height = spec.height - margin.top - margin.bottom;
+    
+    
+
+    let svg = d3.select('#' + where)
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height + margin.bottom);
+    
+    let clip = svg.append("defs").append("clipPath")
+            .attr("id", "clip"  + chartNo)
+            .append("rect")
+            .attr("width", width)
+            .attr("height", height)
+            //.attr("x", 0)
+            //.attr("y", 0); 
+    
+     var title = svg.append("text")
+      .attr("x", margin.right + margin.left + 10)
+      .attr("y", margin.top - 5)
+      .attr("text-anchor", "left")
+      .style("font-size", "14px")
+      .text(yVal);
+
+    let lineChart = svg.append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .attr("clip-path", "url(#clip" + chartNo + ")");
+
+    var axes = svg.append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    let lineGen = d3.line()
+        .x(function (d) {
+          return x(d[xVal] / 10000000)
+        })
+        .y(function (d) {
+          return y(d[yVal])
+        });
+    
+    
+    let x = d3.scaleLinear()
+      .domain(d3.extent(chartData, function (d) {
+        return d[xVal] / 10000000;
+      }))
+      .range([0, width]);
+
+    let y = d3.scaleLinear()
+      .domain(d3.extent(chartData, function (d) {
+        return d[yVal];
+      }))
+      .range([height, 0]);
+
+    axes.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .attr('id', 'xAxis' + id)
+      .call(d3.axisBottom(x));
+
+    axes.append("g")
+      .call(d3.axisLeft(y));
+
+
+    lineChart.append("path")
+      .datum(chartData)
+      .attr('class', 'line')
+      .attr('id', id)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("d", lineGen)
+
+    dispatch.call('chartCreated', this, {id: id, line: lineGen, axis: x})
+
+    chartNo += 1;
+
+  }
+
+
 
 });

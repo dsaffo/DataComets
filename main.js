@@ -19,7 +19,7 @@
     console.log('loaded', data)
 
 
-    const dispatch = d3.dispatch("timelineFiltered", "openBranch", "closeBranch", "encodePath");
+    const dispatch = d3.dispatch("timelineBrushed", "openBranch", "closeBranch", "encodePath", "chartCreated");
 
     const map = Map(dispatch, data, dimensions);
     const timeline = Timeline(dispatch, data, dimensions);

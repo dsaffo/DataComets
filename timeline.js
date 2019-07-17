@@ -1,15 +1,18 @@
 const Timeline = (function (dispatch, data, dimensions) {
 
-  let Xarray = [];
+  let chartComps = [];
 
-  dispatch.on('openBranch.timeline', function (recordXs) {
-    Xarray = recordXs
-    test();
+  dispatch.on('chartCreated.timeline', function (comps) {
+    chartComps.push(comps)
   });
 
   let test = function () {
-    console.log(Xarray.length)
+    // console.log(Xarray.length)
   }
+
+  dispatch.on('timelineBrushed.timeline', function (window) {
+    //console.log(window)
+  });
 
 
   let timelineLineChartSpec = {
@@ -22,8 +25,12 @@ const Timeline = (function (dispatch, data, dimensions) {
     width: dimensions.timeline.width - 10,
     height: dimensions.timeline.height - 10
   }
-  
-  lineChartGen('timeline-container', {data: 'vehicle_gps_position', x:'timestamp', y: 'alt'}, timelineLineChartSpec)
+
+  lineChartGen('timeline-container', {
+    data: 'vehicle_gps_position',
+    x: 'timestamp',
+    y: 'alt'
+  }, timelineLineChartSpec)
 
   function lineChartGen(where, what, options) {
 
@@ -45,9 +52,13 @@ const Timeline = (function (dispatch, data, dimensions) {
         bottom: options.margin.bottom,
         left: options.margin.left
       },
-      width = options.width - (margin.right + margin.left)// Use the window's width 
+      width = options.width - (margin.right + margin.left) // Use the window's width 
       ,
-      height = options.height - (margin.top + margin.bottom)// Use the window's height
+      height = options.height - (margin.top + margin.bottom) // Use the window's height
+
+    var brush = d3.brushX()
+      .extent([[0, 0], [width, height]])
+      .on("start brush end", brushed)
 
     var svg = d3.select('#' + where)
       .append("svg")
@@ -56,14 +67,7 @@ const Timeline = (function (dispatch, data, dimensions) {
       .append("g")
       .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
-/*
-    var title = svg.append("text")
-      .attr("x", 0 + margin.left / 2)
-      .attr("y", 10)
-      .attr("text-anchor", "left")
-      .style("font-size", "14px")
-      .text(yVal);
-*/
+
     var x = d3.scaleLinear()
       .domain(d3.extent(df, function (d) {
         return d[xVal] / 10000000;
@@ -93,6 +97,67 @@ const Timeline = (function (dispatch, data, dimensions) {
           return y(d[yVal])
         })
       )
+
+    var gBrush = svg.append("g")
+      .attr("class", "brush")
+      .call(brush)
+
+
+    // X - axis label for timeline
+    svg.append("text")
+      .attr("class", "x label")
+      .attr("text-anchor", "end")
+      .attr("transform",
+        "translate(" + (width + margin.left) + " ," +
+        (height + margin.top + 0.5 * margin.bottom) + ")")
+      .style("font-size", "16px")
+      .text("Time (s)");
+
+    //console.log(d3.brushSelection(gBrush.node))
+
+    gBrush.call(brush.move, [96, 120].map(x));
+
+    function brushed() {
+
+      //let focusses = d3.selectAll(".focus");
+
+      max = d3.max(data['vehicle_gps_position'], function (d) {
+        return parseFloat(d['timestamp']);
+      });
+      min = d3.min(data['vehicle_gps_position'], function (d) {
+        return parseFloat(d['timestamp']);
+      });
+
+
+      if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
+
+
+
+
+      var s = d3.event.selection || x.range();
+
+
+      if (chartComps.length > 0) {
+        for (let i = 0; i < chartComps.length; i++) {
+          try {
+            //console.log(d3.select('.' + chartComps[i]['id']))
+            chartComps[i]['axis'].domain(s.map(x.invert, x));
+            d3.select('#' + chartComps[i]['id']).attr("d", chartComps[i]['line']);
+            d3.select("#xAxis" + chartComps[i]['id']).call(d3.axisBottom(chartComps[i]['axis']));
+          } catch (err) {
+            
+          }
+        }
+      }
+
+
+
+      dispatch.call('timelineBrushed', this, [s.map(x.invert)[0], s.map(x.invert)[1]]);
+    }
   }
+
+
+
+
 
 });
