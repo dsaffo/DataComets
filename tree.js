@@ -6,11 +6,11 @@ const Tree = (function (dispatch, data, dimensions) {
     margin: {
       top: 20,
       right: 10,
-      bottom: 30,
-      left: 30
+      bottom: 40,
+      left: 40
     },
-    width: 350,
-    height: 100
+    width: 400,
+    height: 150
   }
 
   let pinnedLineChartSpec = {
@@ -47,11 +47,7 @@ const Tree = (function (dispatch, data, dimensions) {
 
   });
 
-  //when branch is closed mark x-axis for removal 
-  dispatch.on('closeBranch.tree', function (recordXs) {
-
-  });
-
+  
   //when record is selected to be encoded on drone path
   dispatch.on('encodePath.tree', function (record) {
 
@@ -60,7 +56,7 @@ const Tree = (function (dispatch, data, dimensions) {
 
   var ul = d3.select('#tree');
 
-  let logs = Object.keys(data).slice(8, 9);
+  let logs = Object.keys(data)//.slice(8, 9);
 
   let recordXs = [];
 
@@ -106,7 +102,7 @@ const Tree = (function (dispatch, data, dimensions) {
             data: log,
             x: "timestamp",
             y: record
-          }, pinnedLineChartSpec);
+          }, treeLineChartSpec);
           recordXs.push(x);
         } else if (record != "timestamp") {
           singles.push(record)
@@ -253,8 +249,7 @@ const Tree = (function (dispatch, data, dimensions) {
     }
     let width = spec.width - margin.left - margin.right;
     let height = spec.height - margin.top - margin.bottom;
-    
-    
+   
 
     let svg = d3.select('#' + where)
       .append("svg")
@@ -321,6 +316,23 @@ const Tree = (function (dispatch, data, dimensions) {
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
       .attr("d", lineGen)
+    
+     
+    d3.select('#' + where)
+      .append('a')
+      .style('position', 'relative')
+      .style('bottom', '100px')
+      .style('color', 'black')
+      .append('i')
+      .attr('class', 'mdi mdi-pin-outline small');
+    
+    d3.select('#' + where)
+      .append('a')
+      .style('position', 'relative')
+      .style('bottom', '100px')
+      .style('color', 'black')
+      .append('i')
+      .attr('class', 'mdi mdi-pin-outline small');
 
     dispatch.call('chartCreated', this, {id: id, line: lineGen, axis: x})
 
