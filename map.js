@@ -51,7 +51,7 @@ const Map = (function (dispatch, data, dimensions) {
       return map.latLngToLayerPoint([lat, lon]).y
     }).curve(d3.curveMonotoneX)
 
-  colorScale = selectColorScale(data['vehicle_gps_position'], 'alt', 'Reds');
+  colorScale = selectColorScale(data['vehicle_gps_position'], 'alt', 'Purples');
   log = 'vehicle_gps_position'
   drawPath(data[log])
 

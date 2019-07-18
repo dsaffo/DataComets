@@ -1,27 +1,49 @@
 const Tree = (function (dispatch, data, dimensions) {
-  
+
   let chartNo = 0;
+
+  let pinnedList = {};
+  
+  let mapSelection = {selection:null};
 
   let treeLineChartSpec = {
     margin: {
-      top: 20,
-      right: 10,
-      bottom: 40,
-      left: 40
+      top: 5,
+      right: 40,
+      bottom: 25,
+      left: 35
     },
-    width: 400,
-    height: 150
+    width: dimensions.tree.width * 0.9,
+    height: 150,
+    pinned: false,
+    default: false
   }
 
   let pinnedLineChartSpec = {
     margin: {
-      top: 20,
-      right: 0,
-      bottom: 40,
-      left: 80
+      top: 5,
+      right: 50,
+      bottom: 25,
+      left: 40
     },
-    width: 500,
-    height: 200
+    width: dimensions.tree.width,
+    height: 200,
+    pinned: true,
+    default: false
+
+  }
+
+  let defaultPinnedLineChartSpec = {
+    margin: {
+      top: 5,
+      right: 50,
+      bottom: 25,
+      left: 40
+    },
+    width: dimensions.tree.width,
+    height: 200,
+    pinned: true,
+    default: true
   }
 
   //console.log('tree')
@@ -41,13 +63,35 @@ const Tree = (function (dispatch, data, dimensions) {
 
   const allEqual = arr => arr.every(v => v === arr[0])
 
-  //when branch is opened save x-axis to dictionary 
-  dispatch.on('openBranch.tree', function (recordXs) {
-    console.log(recordXs.length)
 
+  dispatch.on('pinned.tree', function (spec, what, chartNo) {
+    if (spec.default != true) {
+      d3.select(this).style('color', '#612658')
+        .attr('class', 'on');
+      id = lineChartGen2('pinned', what, pinnedLineChartSpec);
+      pinnedList = Object.assign({
+        [chartNo]: id
+      });
+      console.log(chartNo, id);
+    }
   });
 
-  
+  dispatch.on('unpinned.tree', function (spec, id) {
+    if (spec.pinned === true) {
+      d3.select(this).style('color', 'lightgrey')
+        .attr('class', 'off');
+      d3.select('#card' + id).remove();
+    } else {
+      sel = pinnedList[id]
+      d3.select(this).style('color', 'lightgrey')
+        .attr('class', 'off');
+      console.log('#cardchart' + sel)
+      d3.select('#cardchart' + sel).remove();
+    }
+  });
+
+
+
   //when record is selected to be encoded on drone path
   dispatch.on('encodePath.tree', function (record) {
 
@@ -56,7 +100,7 @@ const Tree = (function (dispatch, data, dimensions) {
 
   var ul = d3.select('#tree');
 
-  let logs = Object.keys(data)//.slice(8, 9);
+  let logs = Object.keys(data) //.slice(8, 9);
 
   let recordXs = [];
 
@@ -136,31 +180,31 @@ const Tree = (function (dispatch, data, dimensions) {
   }
 
 
- let x1 =  lineChartGen2('pinned', {
+  let x1 = lineChartGen2('pinned', {
     data: 'vehicle_gps_position',
     x: 'timestamp',
     y: 'alt'
-  }, pinnedLineChartSpec);
-  
-    lineChartGen2('pinned', {
-      data: 'vehicle_global_position',
-      x: 'timestamp',
-      y: 'alt'
-    }, pinnedLineChartSpec);
+  }, defaultPinnedLineChartSpec);
 
-    lineChartGen2('pinned', {
-      data: 'vehicle_air_data',
-      x: 'timestamp',
-      y: 'baro_alt_meter'
-    }, pinnedLineChartSpec);
+  lineChartGen2('pinned', {
+    data: 'vehicle_global_position',
+    x: 'timestamp',
+    y: 'alt'
+  }, defaultPinnedLineChartSpec);
 
-    lineChartGen2('pinned', {
-      data: 'actuator_controls_0',
-      x: 'timestamp',
-      y: 'control[3]'
-    }, pinnedLineChartSpec);
-  
-  
+  lineChartGen2('pinned', {
+    data: 'vehicle_air_data',
+    x: 'timestamp',
+    y: 'baro_alt_meter'
+  }, defaultPinnedLineChartSpec);
+
+  lineChartGen2('pinned', {
+    data: 'actuator_controls_0',
+    x: 'timestamp',
+    y: 'control[3]'
+  }, defaultPinnedLineChartSpec);
+
+
   function lineChartGen(where, what, options) {
 
     df = data[what.data]
@@ -238,7 +282,7 @@ const Tree = (function (dispatch, data, dimensions) {
     let chartData = data[what.data]
     let yVal = what.y;
     let xVal = what.x;
-    
+
     let id = 'chart' + chartNo;
 
     let margin = {
@@ -249,27 +293,74 @@ const Tree = (function (dispatch, data, dimensions) {
     }
     let width = spec.width - margin.left - margin.right;
     let height = spec.height - margin.top - margin.bottom;
-   
 
-    let svg = d3.select('#' + where)
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height + margin.bottom);
-    
-    let clip = svg.append("defs").append("clipPath")
-            .attr("id", "clip"  + chartNo)
-            .append("rect")
-            .attr("width", width)
-            .attr("height", height)
-            //.attr("x", 0)
-            //.attr("y", 0); 
-    
-     var title = svg.append("text")
+    let div = d3.select('#' + where)
+      .append('div')
+      .attr('id', 'card' + id)
+      .attr('class', 'card-panel')
+
+    var title = div.append("span")
       .attr("x", margin.right + margin.left + 10)
       .attr("y", margin.top - 5)
       .attr("text-anchor", "left")
       .style("font-size", "14px")
       .text(yVal);
+
+    div.append('a')
+      .style('float', 'right')
+      .style('color', 'lightgrey')
+      .append('i')
+      .attr('class', 'mdi mdi-map small');
+
+    div.append('a')
+      .style('float', 'right')
+      .style('color', function () {
+        if (spec.pinned === true) {
+          return "#612658"
+        } else {
+          return "lightgrey"
+        }
+      })
+      .attr('class', function () {
+        if (spec.pinned === true) {
+          return "on"
+        } else {
+          return "off"
+        }
+      })
+      .on('click', function () {
+        if (d3.select(this)["_groups"][0][0]['classList'][0] === "off") {
+          dispatch.call('pinned', this, spec, what, id)
+        } else if (d3.select(this)["_groups"][0][0]['classList'][0] === "on") {
+          console.log('onclick')
+          dispatch.call('unpinned', this, spec, id)
+        }
+      })
+      .append('i')
+      .attr('class', function () {
+        if (spec.default === true) {
+          return "mdi mdi-pin-off small"
+        } else {
+          return "mdi mdi-pin small"
+        }
+      })
+
+
+
+
+    let svg = div.append("svg")
+      .attr("width", width)
+      .attr("height", height + margin.bottom);
+
+    let clip = svg.append("defs").append("clipPath")
+      .attr("id", "clip" + chartNo)
+      .append("rect")
+      .attr("width", width)
+      .attr("height", height)
+    //.attr("x", 0)
+    //.attr("y", 0); 
+
+
 
     let lineChart = svg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -279,14 +370,14 @@ const Tree = (function (dispatch, data, dimensions) {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     let lineGen = d3.line()
-        .x(function (d) {
-          return x(d[xVal] / 10000000)
-        })
-        .y(function (d) {
-          return y(d[yVal])
-        });
-    
-    
+      .x(function (d) {
+        return x(d[xVal] / 10000000)
+      })
+      .y(function (d) {
+        return y(d[yVal])
+      });
+
+
     let x = d3.scaleLinear()
       .domain(d3.extent(chartData, function (d) {
         return d[xVal] / 10000000;
@@ -313,30 +404,42 @@ const Tree = (function (dispatch, data, dimensions) {
       .attr('class', 'line')
       .attr('id', id)
       .attr("fill", "none")
-      .attr("stroke", "steelblue")
+      .attr("stroke", "#7C3F73")
       .attr("stroke-width", 1.5)
       .attr("d", lineGen)
-    
-     
-    d3.select('#' + where)
-      .append('a')
-      .style('position', 'relative')
-      .style('bottom', '100px')
-      .style('color', 'black')
-      .append('i')
-      .attr('class', 'mdi mdi-pin-outline small');
-    
-    d3.select('#' + where)
-      .append('a')
-      .style('position', 'relative')
-      .style('bottom', '100px')
-      .style('color', 'black')
-      .append('i')
-      .attr('class', 'mdi mdi-pin-outline small');
 
-    dispatch.call('chartCreated', this, {id: id, line: lineGen, axis: x})
+    let pinBottom = 60 + "px"
+    let mapBottom = 30 + "px"
+
+    let pinLeft = 10 + "px"
+    let mapRight = 20 + "px"
+
+    /*
+      div.append('a')
+      .style('position', 'relative')
+      .style('bottom', pinBottom)
+      .style('left', pinLeft)
+      .style('color', 'lightgrey')
+      .on('click', function(){ console.log('hi'); d3.select(this).style('color', '#612658')})
+      .append('i')
+      .attr('class', 'mdi mdi-pin small')
+      div.append('a')
+      //.style('position', 'relative')
+      //.style('bottom', mapBottom)
+      //.style('right', mapRight)
+      .style('color', 'lightgrey')
+      .append('i')
+      .attr('class', 'mdi mdi-map small');
+      */
+
+    dispatch.call('chartCreated', this, {
+      id: id,
+      line: lineGen,
+      axis: x
+    })
 
     chartNo += 1;
+    return chartNo - 1;
 
   }
 

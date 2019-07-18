@@ -87,7 +87,7 @@ const Timeline = (function (dispatch, data, dimensions) {
     svg.append("path")
       .datum(df)
       .attr("fill", "none")
-      .attr("stroke", "steelblue")
+      .attr("stroke", "#612658")
       .attr("stroke-width", 1.5)
       .attr("d", d3.line()
         .x(function (d) {
@@ -141,7 +141,7 @@ const Timeline = (function (dispatch, data, dimensions) {
         for (let i = 0; i < chartComps.length; i++) {
           try {
             //console.log(d3.select('.' + chartComps[i]['id']))
-            if (d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['style'].display === 'block'){
+            if (d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['style'].display === 'block'){
             chartComps[i]['axis'].domain(s.map(x.invert, x));
             d3.select('#' + chartComps[i]['id']).attr("d", chartComps[i]['line']);
             d3.select("#xAxis" + chartComps[i]['id']).call(d3.axisBottom(chartComps[i]['axis']));
