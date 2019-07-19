@@ -19,7 +19,7 @@
     console.log('loaded', data)
 
 
-    const dispatch = d3.dispatch("timelineBrushed", "openBranch", "switchTab", "encodePath", "chartCreated",  "pinned", "unpinned");
+    const dispatch = d3.dispatch("timelineBrushed", "openBranch", "switchTab", "mapped","unmapped", "chartCreated",  "pinned", "unpinned", "hover", "unhover");
 
     const map = Map(dispatch, data, dimensions);
     const timeline = Timeline(dispatch, data, dimensions);

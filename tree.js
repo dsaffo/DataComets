@@ -1,10 +1,16 @@
 const Tree = (function (dispatch, data, dimensions) {
 
+  let colorCycle = 0;
+  
   let chartNo = 0;
 
   let pinnedList = {};
-  
-  let mapSelection = {selection:null};
+
+  let chartList = [];
+
+  let mapSelection = {
+    id: null
+  };
 
   let treeLineChartSpec = {
     margin: {
@@ -66,11 +72,11 @@ const Tree = (function (dispatch, data, dimensions) {
 
   dispatch.on('pinned.tree', function (spec, what, chartNo) {
     if (spec.default != true) {
-      d3.select(this).style('color', '#612658')
+      d3.select(this).style('color', '#16132E')
         .attr('class', 'on');
       id = lineChartGen2('pinned', what, pinnedLineChartSpec);
       pinnedList = Object.assign({
-        [chartNo]: id
+        [chartNo]: id.chartNo
       });
       console.log(chartNo, id);
     }
@@ -90,12 +96,23 @@ const Tree = (function (dispatch, data, dimensions) {
     }
   });
 
+  dispatch.on('chartCreated.tree', function (chartInfo) {
+    chartList.push(chartInfo);
+  });
 
+  dispatch.on('mapped.tree', function (chartInfo) {
 
-  //when record is selected to be encoded on drone path
-  dispatch.on('encodePath.tree', function (record) {
+    if (mapSelection.id != "#mapSe" + chartInfo.chartNo) {
+      d3.select(mapSelection.id).style('color', 'lightgrey')
+      mapSelection.id = "#mapSel" + chartInfo.chartNo;
+      d3.select(mapSelection.id).style('color', '#16132E')
+
+    }
+
 
   });
+
+
 
 
   var ul = d3.select('#tree');
@@ -142,12 +159,12 @@ const Tree = (function (dispatch, data, dimensions) {
         }
 
         if (record != "timestamp" && !allEqual(vals)) {
-          let x = lineChartGen2(log + "-body", {
+          lineChartGen2(log + "-body", {
             data: log,
             x: "timestamp",
             y: record
           }, treeLineChartSpec);
-          recordXs.push(x);
+
         } else if (record != "timestamp") {
           singles.push(record)
         }
@@ -180,11 +197,13 @@ const Tree = (function (dispatch, data, dimensions) {
   }
 
 
-  let x1 = lineChartGen2('pinned', {
+  starter = lineChartGen2('pinned', {
     data: 'vehicle_gps_position',
     x: 'timestamp',
     y: 'alt'
   }, defaultPinnedLineChartSpec);
+
+  dispatch.call('mapped', this, starter);
 
   lineChartGen2('pinned', {
     data: 'vehicle_global_position',
@@ -277,7 +296,24 @@ const Tree = (function (dispatch, data, dimensions) {
   }
 
 
+
   function lineChartGen2(where, what, spec) {
+
+    color = "#16132E"
+
+    if (colorCycle == 0) {
+      color = "#691433"
+      colorCycle += 1;
+    } else if (colorCycle == 1) {
+      color = "#91003E"
+      colorCycle += 1;
+    } else if (colorCycle == 2) {
+      color = "#E80936"
+      colorCycle += 1;
+    } else if (colorCycle == 3) {
+      color = "#F95E3F"
+      colorCycle = 0;
+    }
 
     let chartData = data[what.data]
     let yVal = what.y;
@@ -307,16 +343,20 @@ const Tree = (function (dispatch, data, dimensions) {
       .text(yVal);
 
     div.append('a')
+      .attr('id', 'mapSel' + chartNo)
       .style('float', 'right')
       .style('color', 'lightgrey')
       .append('i')
-      .attr('class', 'mdi mdi-map small');
+      .attr('class', 'mdi mdi-map small')
+      .on('click', function () {
+        dispatch.call('mapped', this, chartInfo)
+      });
 
     div.append('a')
       .style('float', 'right')
       .style('color', function () {
         if (spec.pinned === true) {
-          return "#612658"
+          return "#16132E"
         } else {
           return "lightgrey"
         }
@@ -355,7 +395,7 @@ const Tree = (function (dispatch, data, dimensions) {
     let clip = svg.append("defs").append("clipPath")
       .attr("id", "clip" + chartNo)
       .append("rect")
-      .attr("width", width)
+      .attr("width", width - margin.right)
       .attr("height", height)
     //.attr("x", 0)
     //.attr("y", 0); 
@@ -363,6 +403,7 @@ const Tree = (function (dispatch, data, dimensions) {
 
 
     let lineChart = svg.append("g")
+      .attr('id', 'main' + id)
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
       .attr("clip-path", "url(#clip" + chartNo + ")");
 
@@ -375,28 +416,32 @@ const Tree = (function (dispatch, data, dimensions) {
       })
       .y(function (d) {
         return y(d[yVal])
-      });
+      }).curve(d3.curveMonotoneX);
 
 
     let x = d3.scaleLinear()
       .domain(d3.extent(chartData, function (d) {
         return d[xVal] / 10000000;
       }))
-      .range([0, width]);
+      .range([0, width - margin.right]);
 
     let y = d3.scaleLinear()
       .domain(d3.extent(chartData, function (d) {
         return d[yVal];
       }))
-      .range([height, 0]);
+      .range([height - margin.top, 0]);
 
     axes.append("g")
       .attr("transform", "translate(0," + height + ")")
       .attr('id', 'xAxis' + id)
+      .attr('class', 'axis')
       .call(d3.axisBottom(x));
 
     axes.append("g")
+      .attr('class', 'axis')
       .call(d3.axisLeft(y));
+    
+
 
 
     lineChart.append("path")
@@ -404,44 +449,95 @@ const Tree = (function (dispatch, data, dimensions) {
       .attr('class', 'line')
       .attr('id', id)
       .attr("fill", "none")
-      .attr("stroke", "#7C3F73")
-      .attr("stroke-width", 1.5)
+      .attr("stroke", color)
+      .attr("stroke-width", 2)
       .attr("d", lineGen)
 
-    let pinBottom = 60 + "px"
-    let mapBottom = 30 + "px"
+    let bisect = d3.bisector(function (d) {
+      return d[xVal];
+    }).left;
 
-    let pinLeft = 10 + "px"
-    let mapRight = 20 + "px"
 
-    /*
-      div.append('a')
-      .style('position', 'relative')
-      .style('bottom', pinBottom)
-      .style('left', pinLeft)
-      .style('color', 'lightgrey')
-      .on('click', function(){ console.log('hi'); d3.select(this).style('color', '#612658')})
-      .append('i')
-      .attr('class', 'mdi mdi-pin small')
-      div.append('a')
-      //.style('position', 'relative')
-      //.style('bottom', mapBottom)
-      //.style('right', mapRight)
-      .style('color', 'lightgrey')
-      .append('i')
-      .attr('class', 'mdi mdi-map small');
-      */
+    var focus = lineChart
+      .append('g')
+      .append('rect')
+      .attr("id", 'hover' + chartNo)
+      .style("fill", "#16132E")
+      .attr("stroke", "#16132E")
+      .attr('height', height)
+      .attr('width', 1)
+      .style("opacity", 0)
 
-    dispatch.call('chartCreated', this, {
+    svg
+      .append('rect')
+      .style("fill", "none")
+      .style("pointer-events", "all")
+      .attr('width', width - margin.right)
+      .attr('height', height)
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .on('mouseover', mouseover)
+      .on('mousemove', mousemove)
+      .on('mouseout', mouseout);
+
+    function mouseover() {
+      focus.style("opacity", 0.5)
+    }
+
+    function mousemove() {
+      // recover coordinate we need
+      var x0 = x.invert(d3.mouse(this)[0]);
+      var i = bisect(chartData, x0 * 10000000, 1);
+      //console.log(x0, i)
+      selectedData = chartData[i]
+      focus.attr("x", x(selectedData[xVal] / 10000000))
+        .attr("y", 0)
+
+      dispatch.call('hover', this, selectedData[xVal] / 10000000, chartNo)
+
+    }
+
+    function mouseout() {
+      focus.style("opacity", 0)
+      dispatch.call('unhover', this)
+    }
+
+    let chartInfo = {
       id: id,
       line: lineGen,
-      axis: x
-    })
+      axis: x,
+      spec: spec,
+      what: what,
+      chartNo: chartNo,
+      color: color
+    }
 
+    dispatch.call('chartCreated', this, chartInfo)
     chartNo += 1;
-    return chartNo - 1;
 
+    return chartInfo
   }
+
+
+  dispatch.on('hover.tree', function (time, idNo) {
+
+    for (let i = 0; i < chartList.length; i++) {
+      let chart = chartList[i];
+
+      if (chart.chartNo != idNo) {
+        d3.select("#hover" + chart.chartNo).style('opacity', 0.5).style("fill", "black").attr("x", chart.axis(time)).attr("y", 0);
+      }
+    }
+
+  })
+
+  dispatch.on('unhover.tree', function () {
+
+    for (let i = 0; i < chartList.length; i++) {
+      let chart = chartList[i];
+      d3.select("#hover" + chart.chartNo).style('opacity', 0);
+    }
+  });
+
 
 
 

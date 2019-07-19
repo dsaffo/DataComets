@@ -26,13 +26,27 @@ const Timeline = (function (dispatch, data, dimensions) {
     height: dimensions.timeline.height - 10
   }
 
-  lineChartGen('timeline-container', {
+  let xAxis = lineChartGen('timeline-container', {
     data: 'vehicle_gps_position',
     x: 'timestamp',
     y: 'alt'
   }, timelineLineChartSpec)
 
+
+  dispatch.on('hover.timeline', function (time) {
+    d3.select('#hoverTimeline').style("opacity", 0.5).attr("x", xAxis(time)).attr("y", 0);
+  });
+
+  dispatch.on('unhover.timeline', function () {
+    d3.select('#hoverTimeline').style("opacity", 0)
+  });
+
+  dispatch.on('mapped.timeline', function (chartInfo) {
+    lineChartGen('timeline-container', chartInfo.what, timelineLineChartSpec);
+  })
+
   function lineChartGen(where, what, options) {
+    d3.select('#' + where).selectAll('svg').remove();
 
     df = data[what.data]
     //console.log(where)
@@ -98,6 +112,18 @@ const Timeline = (function (dispatch, data, dimensions) {
         })
       )
 
+    var focus = svg
+      .append('g')
+      .append('rect')
+      .attr("id", 'hoverTimeline')
+      .style("fill", "black")
+      .attr("stroke", "black")
+      .attr('stroke', 8.5)
+      .attr('height', height)
+      .attr('width', 1)
+      .style("opacity", 0)
+
+
     var gBrush = svg.append("g")
       .attr("class", "brush")
       .call(brush)
@@ -115,49 +141,39 @@ const Timeline = (function (dispatch, data, dimensions) {
 
     //console.log(d3.brushSelection(gBrush.node))
 
-    gBrush.call(brush.move, [96, 120].map(x));
+    gBrush.call(brush.move, d3.extent(df, function (d) {
+      return d[xVal] / 10000000;
+    }).map(x));
 
     function brushed() {
 
-      //let focusses = d3.selectAll(".focus");
-
-      max = d3.max(data['vehicle_gps_position'], function (d) {
-        return parseFloat(d['timestamp']);
-      });
-      min = d3.min(data['vehicle_gps_position'], function (d) {
-        return parseFloat(d['timestamp']);
-      });
-
-
-      if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
-
-
-
+      // if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
 
       var s = d3.event.selection || x.range();
 
-
       if (chartComps.length > 0) {
         for (let i = 0; i < chartComps.length; i++) {
-          try {
-            //console.log(d3.select('.' + chartComps[i]['id']))
-            if (d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['style'].display === 'block'){
+
+          //console.log(d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['style'].display)
+          if (d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['style'].display === 'block' ||
+            d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['parentElement']['parentElement']['parentElement'].display === 'block') {
             chartComps[i]['axis'].domain(s.map(x.invert, x));
             d3.select('#' + chartComps[i]['id']).attr("d", chartComps[i]['line']);
             d3.select("#xAxis" + chartComps[i]['id']).call(d3.axisBottom(chartComps[i]['axis']));
-            
+
           }
-            //console.log(d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['style'].display)
-          } catch (err) {
-            
-          }
+
+
         }
       }
 
 
 
+
       dispatch.call('timelineBrushed', this, [s.map(x.invert)[0], s.map(x.invert)[1]]);
     }
+
+    return x;
   }
 
 
