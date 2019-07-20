@@ -2,6 +2,57 @@ const Timeline = (function (dispatch, data, dimensions) {
 
   let chartComps = [];
 
+  let navStates = {
+    0: 'Manual Mode',
+    1: 'Altitude Control Mode',
+    2: 'Position Control Mode',
+    3: 'Auto Mission Mode',
+    4: 'Auto Loiter Mode',
+    5: 'Auto Return To Launch Mode',
+    6: 'RC Recover Mode',
+    7: 'Auto Return To Ground Station On Data Link Loss',
+    8: 'Auto Land On Engine Failure',
+    9: 'Auto Land On GPS Failure',
+    10: 'Acro Mode',
+    11: 'Free Slot',
+    12: 'Descend Mode',
+    13: 'Termination Mode',
+    14: 'Off Board',
+    15: 'Stabilized Mode',
+    16: 'Rattitide Mode (Do A Flip)',
+    17: 'Takeoff',
+    18: 'Land',
+    19: 'Auto Follow',
+    10: 'Precision Land With Traget',
+    21: 'Orbit',
+    22: 'Max'
+  }
+
+  let allModes = [];
+  let modes = [];
+
+  for (let i = 0; i < data['vehicle_status'].length; i++) {
+    allModes.push(data['vehicle_status'][i]['nav_state'])
+  }
+  lastMode = allModes[0];
+  modes.push({
+    val: lastMode,
+    time: data['vehicle_status'][0]['timestamp'],
+    mode: navStates[lastMode]
+  })
+  for (let i = 0; i < allModes.length; i++) {
+    if (allModes[i] != lastMode) {
+      lastMode = allModes[i];
+      modes.push({
+        val: lastMode,
+        time: data['vehicle_status'][i]['timestamp'],
+        mode: navStates[lastMode]
+      })
+    }
+  }
+
+  console.log(modes)
+
   dispatch.on('chartCreated.timeline', function (comps) {
     chartComps.push(comps)
   });
@@ -26,11 +77,7 @@ const Timeline = (function (dispatch, data, dimensions) {
     height: dimensions.timeline.height - 10
   }
 
-  let xAxis = lineChartGen('timeline-container', {
-    data: 'vehicle_gps_position',
-    x: 'timestamp',
-    y: 'alt'
-  }, timelineLineChartSpec)
+  let xAxis = '';
 
 
   dispatch.on('hover.timeline', function (time) {
@@ -42,10 +89,10 @@ const Timeline = (function (dispatch, data, dimensions) {
   });
 
   dispatch.on('mapped.timeline', function (chartInfo) {
-    lineChartGen('timeline-container', chartInfo.what, timelineLineChartSpec);
+    xAxis = lineChartGen('timeline-container', chartInfo.what, timelineLineChartSpec, chartInfo.color);
   })
 
-  function lineChartGen(where, what, options) {
+  function lineChartGen(where, what, options, color) {
     d3.select('#' + where).selectAll('svg').remove();
 
     df = data[what.data]
@@ -101,7 +148,7 @@ const Timeline = (function (dispatch, data, dimensions) {
     svg.append("path")
       .datum(df)
       .attr("fill", "none")
-      .attr("stroke", "#612658")
+      .attr("stroke", color)
       .attr("stroke-width", 1.5)
       .attr("d", d3.line()
         .x(function (d) {
@@ -129,7 +176,7 @@ const Timeline = (function (dispatch, data, dimensions) {
       .call(brush)
 
 
-    // X - axis label for timeline
+    // X - axis label for timelinem,.kl
     svg.append("text")
       .attr("class", "x label")
       .attr("text-anchor", "end")
@@ -138,6 +185,47 @@ const Timeline = (function (dispatch, data, dimensions) {
         (height + margin.top + 0.5 * margin.bottom) + ")")
       .style("font-size", "16px")
       .text("Time (s)");
+
+
+    var div = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+
+
+    let modesGroup = svg.append("g").selectAll('rect').data(modes);
+
+    let modeMarks = modesGroup.enter();
+
+    let h = d3.scaleOrdinal(["rgb(22,20,47)", "rgb(144,0,61)", "rgb(232,7,54)", "rgb(248,93,63)", "rgb(109,197,221)", "rgb(44,113,148)", "rgb(98,236,182)", "rgb(42,107,42)", "rgb(119,190,32)", "rgb(110,57,1)", "rgb(246,187,134)", "rgb(173,118,107)", "rgb(188,205,151)", "rgb(76,62,118)", "rgb(171,145,220)", "rgb(112,44,180)", "rgb(251,93,231)", "rgb(159,4,252)", "rgb(63,244,76)", "rgb(192,113,12)", "rgb(243,212,38)"])
+
+    modeMarks.append('rect')
+      .attr('height', height)
+      .attr('width', 2.5)
+      .attr('opacity', 0.7)
+      .attr('fill', function (d) {
+        return h(d.val)
+      })
+      .attr('x', function (d) {
+        //console.log(x(d.time / 10000000));
+        return x(d.time / 10000000)
+      })
+      .attr('y', 0)
+      .on("mouseover", function (d) {
+        div.transition()
+          .duration(200)
+          .style("opacity", .9);
+        div.html(d.mode + " " + Math.round(d.time / 10000000) + "s")
+          .style("left", (d3.event.pageX) + "px")
+          .style("top", (d3.event.pageY - 28) + "px")
+          .style("color", 'white')
+          .style("background", h(d.val));
+      })
+      .on("mouseout", function (d) {
+        div.transition()
+          .duration(500)
+          .style("opacity", 0);
+      });
+
 
     //console.log(d3.brushSelection(gBrush.node))
 
@@ -153,22 +241,21 @@ const Timeline = (function (dispatch, data, dimensions) {
 
       if (chartComps.length > 0) {
         for (let i = 0; i < chartComps.length; i++) {
+          try {
+            //console.log(d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['style'].display)
+            if (d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['style'].display === 'block' ||
+              d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['parentElement']['parentElement']['parentElement'].display === 'block') {
+              chartComps[i]['axis'].domain(s.map(x.invert, x));
+              d3.select('#' + chartComps[i]['id']).attr("d", chartComps[i]['line']);
+              d3.select("#xAxis" + chartComps[i]['id']).call(d3.axisBottom(chartComps[i]['axis']));
 
-          //console.log(d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['style'].display)
-          if (d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['style'].display === 'block' ||
-            d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['parentElement']['parentElement']['parentElement'].display === 'block') {
-            chartComps[i]['axis'].domain(s.map(x.invert, x));
-            d3.select('#' + chartComps[i]['id']).attr("d", chartComps[i]['line']);
-            d3.select("#xAxis" + chartComps[i]['id']).call(d3.axisBottom(chartComps[i]['axis']));
+            }
+
+          } catch (err) {
 
           }
-
-
         }
       }
-
-
-
 
       dispatch.call('timelineBrushed', this, [s.map(x.invert)[0], s.map(x.invert)[1]]);
     }

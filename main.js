@@ -1,4 +1,8 @@
-  let el = document.querySelector('.tabs');
+
+    //new SSVG();
+
+
+let el = document.querySelector('.tabs');
   var instance2 = M.Tabs.init(el, {});
 
 

@@ -1,7 +1,7 @@
 const Tree = (function (dispatch, data, dimensions) {
 
   let colorCycle = 0;
-  
+
   let chartNo = 0;
 
   let pinnedList = {};
@@ -78,7 +78,7 @@ const Tree = (function (dispatch, data, dimensions) {
       pinnedList = Object.assign({
         [chartNo]: id.chartNo
       });
-      console.log(chartNo, id);
+      //console.log(chartNo, id);
     }
   });
 
@@ -94,6 +94,7 @@ const Tree = (function (dispatch, data, dimensions) {
       console.log('#cardchart' + sel)
       d3.select('#cardchart' + sel).remove();
     }
+    chartList.splice(id, id);
   });
 
   dispatch.on('chartCreated.tree', function (chartInfo) {
@@ -146,7 +147,7 @@ const Tree = (function (dispatch, data, dimensions) {
       .attr("id", log + '-body');
 
 
-    if (log != 'ekf2_timestamps') {
+    if (log != '') {
       let log_data = data[log];
       let records = Object.keys(log_data[0]);
 
@@ -440,12 +441,18 @@ const Tree = (function (dispatch, data, dimensions) {
     axes.append("g")
       .attr('class', 'axis')
       .call(d3.axisLeft(y));
-    
 
+    function reduceData(value) {
+      if (chartData.length >= 5000 && chartData.indexOf(value) % Math.ceil(chartData.length / 5000) == 0) {
+        //console.log(chartData.length, Math.ceil(chartData.length / 5000));
+        return value;
+      } else if (chartData.length <= 5000) return value;
+
+    }
 
 
     lineChart.append("path")
-      .datum(chartData)
+      .datum(chartData.filter(d => reduceData(d)))
       .attr('class', 'line')
       .attr('id', id)
       .attr("fill", "none")
@@ -492,6 +499,7 @@ const Tree = (function (dispatch, data, dimensions) {
       focus.attr("x", x(selectedData[xVal] / 10000000))
         .attr("y", 0)
 
+      dispatch.call('unhover', this)
       dispatch.call('hover', this, selectedData[xVal] / 10000000, chartNo)
 
     }

@@ -12,9 +12,12 @@ const Map = (function (dispatch, data, dimensions) {
     Map Initialization 
   */
 
+  let refLon = data['vehicle_local_position'][0]['ref_lon'];
+  let refLat = data['vehicle_local_position'][0]['ref_lat'];
+
   let map = L.map("map-canvas", {
-    center: [32.3874292, -117.0763872],
-    zoom: 20,
+    center: [refLat, refLon],
+    zoom: 18,
     maxZoom: 25,
     minZoom: 1,
     zoomControl: true
@@ -93,7 +96,9 @@ const Map = (function (dispatch, data, dimensions) {
     update()
   });
 
+  let chartDeets = {};
   dispatch.on("mapped", function (chartInfo) {
+    chartDeets = chartInfo.what;
     attrData = align(chartInfo.what);
     colorScale = selectColorScale(attrData, 'Purples');
     drawPath(data[log], attrData, colorScale);
@@ -162,6 +167,10 @@ const Map = (function (dispatch, data, dimensions) {
   function drawPath(pathData, attrData, colorScale) {
     d3.selectAll('.pathSegments').remove()
 
+    var div = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
+
     start = 0;
     for (i = 0; i < pathData.length; i++) {
       line = pathData.slice(start, start + 3);
@@ -179,13 +188,29 @@ const Map = (function (dispatch, data, dimensions) {
         .attr('stroke', function (d) {
           return colorScale(attrData[i])
         })
-        .attr('id', i)
+        .attr('id', "seg" + i)
         .attr('fill', 'none')
         .style('stroke-width', 5)
         .style('opacity', 1)
         .attr('d', lineGen)
         .attr("class", "pathSegments leaflet-interactive")
-        .on('mouseover', function (d) {});
+        .on('mouseover', function (d) {
+          div.transition()
+            .duration(200)
+            .style("opacity", .9);
+          div.html(attrData[pathData.indexOf(d[0])] + " " + Math.round(d[0]['timestamp'] / 10000000) + "s")
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px")
+            .style("color", 'white')
+            .style("background", colorScale(attrData[pathData.indexOf(d[0])]));
+          dispatch.call('hover', this, d[0]['timestamp'] / 10000000)
+        })
+        .on('mouseout', function (d) {
+          div.transition()
+            .duration(500)
+            .style("opacity", 0);
+          dispatch.call('unhover', this)
+        });
     }
 
   }
@@ -201,14 +226,14 @@ const Map = (function (dispatch, data, dimensions) {
     max = Math.max(...data)
     min = Math.min(...data)
 
-    const d = (max-min)/30;
-    
+    const d = (max - min) / 30;
+
     var colorScale = d3.scaleSequential(d3["interpolate" + cmap])
       .domain([min, max]);
-    
-     var colorScale = d3.scaleThreshold()
-        .range(['#16132e', '#22142f', '#2c152f', '#361630', '#401631', '#491632', '#521633', '#5c1534', '#651435', '#6f1237', '#780f39', '#820b3a', '#8c043d', '#95003e', '#9d013d', '#a5043d', '#ad073c', '#b50c3c', '#bc123c', '#c3173c', '#ca1d3b', '#d1233b', '#d82a3b', '#de303b', '#e4373b', '#e93e3c', '#ee463c', '#f24d3d', '#f6563e', '#f95e3f'])
-        .domain([min + d*1,min + d*2,min + d*3,min + d*4,min + d*5,min + d*6,min + d*7,min + d*8,min + d*9,min + d*10,min + d*11,min + d*12,min + d*13,min + d*14,min + d*15,min + d*16,min + d*17,min + d*18,min + d*19,min + d*20,min + d*21,min + d*22,min + d*23,min + d*24,min + d*25,min + d*26,min + d*27,min + d*28,min + d*29]);
+
+    var colorScale = d3.scaleThreshold()
+      .range(['#16132e', '#22142f', '#2c152f', '#361630', '#401631', '#491632', '#521633', '#5c1534', '#651435', '#6f1237', '#780f39', '#820b3a', '#8c043d', '#95003e', '#9d013d', '#a5043d', '#ad073c', '#b50c3c', '#bc123c', '#c3173c', '#ca1d3b', '#d1233b', '#d82a3b', '#de303b', '#e4373b', '#e93e3c', '#ee463c', '#f24d3d', '#f6563e', '#f95e3f'])
+      .domain([min + d * 1, min + d * 2, min + d * 3, min + d * 4, min + d * 5, min + d * 6, min + d * 7, min + d * 8, min + d * 9, min + d * 10, min + d * 11, min + d * 12, min + d * 13, min + d * 14, min + d * 15, min + d * 16, min + d * 17, min + d * 18, min + d * 19, min + d * 20, min + d * 21, min + d * 22, min + d * 23, min + d * 24, min + d * 25, min + d * 26, min + d * 27, min + d * 28, min + d * 29]);
 
     return colorScale;
   }
@@ -217,7 +242,7 @@ const Map = (function (dispatch, data, dimensions) {
     d3.selectAll(".pathSegments")
       .style('stroke-width', 5)
       .style('display', function () {
-        let id = d3.select(this)['_groups'][0][0]['id']
+        let id = d3.select(this)['_groups'][0][0]['id'].substring(3)
         if (id < selections.window[0] || id > selections.window[1]) {
           return 'none'
         } else {
@@ -226,6 +251,31 @@ const Map = (function (dispatch, data, dimensions) {
       })
       .attr('d', lineGen)
   }
+
+  dispatch.on('hover.map', function (time, idNo) {
+
+    if (idNo == undefined) {
+      d3.select(this).style('stroke-width', 20);
+    } else {
+      let index = 0;
+      for (let i = 0; i < data[log].length; i++) {
+        if (data[log][i]['timestamp'] / 10000000 >= time) {
+          index = i;
+          break;
+        }
+      }
+      d3.select('#seg' + index).style('stroke-width', 20);
+    }
+
+
+
+  })
+
+  dispatch.on('unhover.map', function () {
+    d3.selectAll('.pathSegments').style('stroke-width', 5)
+  })
+
+
 
 
 
