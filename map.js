@@ -8,6 +8,28 @@ const Map = (function (dispatch, data, dimensions) {
   let elem = document.querySelector('.sidenav');
   let instance = new M.Sidenav(elem);
 
+
+  let gpsRecordedSwitch = document.getElementById("gpsRecordedSwitch");
+  let gpsEstimatedSwitch = document.getElementById("gpsEstimatedSwitch");
+  let setPointSwitch = document.getElementById("setPointSwitch");
+  let ghostSwitch = document.getElementById("ghostSwitch");
+
+  gpsRecordedSwitch.addEventListener('change', function () {
+    update();
+  });
+
+  gpsEstimatedSwitch.addEventListener('change', function () {
+    update();
+  });
+
+  setPointSwitch.addEventListener('change', function () {
+    update();
+  })
+
+  ghostSwitch.addEventListener('change', function () {
+    update();
+  });
+
   /*
     Map Initialization 
   */
@@ -41,6 +63,19 @@ const Map = (function (dispatch, data, dimensions) {
     window: []
   }
 
+  let setPoints = [];
+
+  try {
+    for (let i = 0; i < data['position_setpoint_triplet'].length; i++) {
+      setPoints.push({
+        lat: data['position_setpoint_triplet'][i]['previous.lat'],
+        lon: data['position_setpoint_triplet'][i]['previous.lon'],
+      })
+    }
+  } catch (err) {
+
+  }
+
   let lineGen = d3.line()
     .x(function (d) {
       var lat = d.lat / 10000000;
@@ -53,6 +88,18 @@ const Map = (function (dispatch, data, dimensions) {
       //console.log('global' , map.latLngToLayerPoint([lat, lon]).y)
       return map.latLngToLayerPoint([lat, lon]).y
     }).curve(d3.curveMonotoneX)
+
+  let lineGen2 = d3.line()
+    .x(function (d) {
+      var lat = d.lat
+      var lon = d.lon
+      return map.latLngToLayerPoint([lat, lon]).x
+    })
+    .y(function (d) {
+      var lat = d.lat;
+      var lon = d.lon;
+      return map.latLngToLayerPoint([lat, lon]).y
+    }) //.curve(d3.curveNatural)
 
 
   log = 'vehicle_gps_position'
@@ -98,10 +145,11 @@ const Map = (function (dispatch, data, dimensions) {
 
   let chartDeets = {};
   dispatch.on("mapped", function (chartInfo) {
-    chartDeets = chartInfo.what;
+    //chartDeets = chartInfo.what;
     attrData = align(chartInfo.what);
     colorScale = selectColorScale(attrData, 'Purples');
     drawPath(data[log], attrData, colorScale);
+    update();
 
   });
 
@@ -150,6 +198,7 @@ const Map = (function (dispatch, data, dimensions) {
 
 
 
+
   /*
     Worker Functions
     
@@ -165,7 +214,33 @@ const Map = (function (dispatch, data, dimensions) {
   */
 
   function drawPath(pathData, attrData, colorScale) {
-    d3.selectAll('.pathSegments').remove()
+    d3.selectAll('.pathSegments').remove();
+    d3.selectAll('.gpsEst').remove();
+    d3.selectAll('.ghost').remove();
+    d3.selectAll('.setpoints').remove();
+
+    let svg = d3.select("#map-canvas").select("svg").append("svg")
+
+    let estGps = svg.append('g').selectAll('path').data([data['vehicle_global_position']]).enter()
+
+    estGps.append('path')
+      .attr('stroke', 'red')
+      .attr('fill', 'none')
+      .style('stroke-width', 15)
+      .style('opacity', 0.2)
+      .attr('d', lineGen2)
+      .attr("class", "gpsEst")
+
+    let ghost = svg.append('g').selectAll('path').data([pathData]).enter()
+
+    ghost.append('path')
+      .attr('stroke', 'black')
+      .attr('fill', 'none')
+      .style('stroke-width', 3)
+      .style('opacity', 0.5)
+      .style("stroke-dasharray", "10,20")
+      .attr('d', lineGen)
+      .attr("class", "ghost")
 
     var div = d3.select("body").append("div")
       .attr("class", "tooltip")
@@ -213,6 +288,22 @@ const Map = (function (dispatch, data, dimensions) {
         });
     }
 
+    let setpoints = svg.append('g').selectAll('circle').data(setPoints).enter()
+    //console.log(setPoints);
+
+    setpoints.append('circle')
+      .attr('fill', 'none')
+      .attr('stroke', '#16132E')
+      .attr('stroke-width', 4)
+      .attr('cx', function (d) {
+        return map.latLngToLayerPoint([d.lat, d.lon]).x
+      })
+      .attr('cy', function (d) {
+        return map.latLngToLayerPoint([d.lat, d.lon]).y
+      })
+      .attr('r', 6)
+      .attr('class', 'setpoints');
+
   }
 
   function selectColorScale(data, cmap) {
@@ -242,14 +333,57 @@ const Map = (function (dispatch, data, dimensions) {
     d3.selectAll(".pathSegments")
       .style('stroke-width', 5)
       .style('display', function () {
-        let id = d3.select(this)['_groups'][0][0]['id'].substring(3)
-        if (id < selections.window[0] || id > selections.window[1]) {
+        if (!gpsRecordedSwitch.checked) {
+          return 'none'
+        } else {
+          let id = d3.select(this)['_groups'][0][0]['id'].substring(3)
+          if (id < selections.window[0] || id > selections.window[1]) {
+            return 'none'
+          } else {
+            return 'initial';
+          }
+        }
+      })
+      .attr('d', lineGen)
+
+    d3.selectAll(".gpsEst")
+      .style('stroke-width', 15)
+      .style('display', function () {
+        if (!gpsEstimatedSwitch.checked) {
+          return 'none'
+        } else {
+          return 'initial';
+        }
+      })
+      .attr('d', lineGen2)
+
+    d3.selectAll(".ghost")
+      .style('stroke-width', 3)
+      .style('display', function () {
+        if (!ghostSwitch.checked) {
           return 'none'
         } else {
           return 'initial';
         }
       })
       .attr('d', lineGen)
+
+    d3.selectAll(".setpoints")
+      .attr('stroke-width', 3)
+      .attr('r', 6)
+      .style('display', function () {
+        if (!setPointSwitch.checked) {
+          return 'none'
+        } else {
+          return 'initial';
+        }
+      }).attr('cx', function (d) {
+        return map.latLngToLayerPoint([d.lat, d.lon]).x
+      })
+      .attr('cy', function (d) {
+        return map.latLngToLayerPoint([d.lat, d.lon]).y
+      })
+
   }
 
   dispatch.on('hover.map', function (time, idNo) {

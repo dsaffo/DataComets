@@ -1,36 +1,42 @@
-
-    //new SSVG();
+//new SSVG();
 
 
 let el = document.querySelector('.tabs');
-  var instance2 = M.Tabs.init(el, {});
+var instance2 = M.Tabs.init(el, {});
 
 
-  let dimensions = {
-    map: {width: document.getElementById('map-canvas').offsetWidth, height: document.getElementById('map-canvas').offsetHeight},
-    tree: {width: document.getElementById('tree-container').offsetWidth, height: document.getElementById('tree-container').offsetHeight},
-    timeline: {width: document.getElementById('timeline-container').offsetWidth, height: document.getElementById('timeline-container').offsetHeight}
+let dimensions = {
+  map: {
+    width: document.getElementById('map-canvas').offsetWidth,
+    height: document.getElementById('map-canvas').offsetHeight
+  },
+  tree: {
+    width: document.getElementById('tree-container').offsetWidth,
+    height: document.getElementById('tree-container').offsetHeight
+  },
+  timeline: {
+    width: document.getElementById('timeline-container').offsetWidth,
+    height: document.getElementById('timeline-container').offsetHeight
   }
-  
-  console.log(dimensions);
+}
+
+console.log(dimensions);
 
 
 
-  d3.json('data/data.json').then(function (data) {
+d3.json('data/data.json').then(function (data) {
 
 
 
-    console.log('loaded', data)
+  console.log('loaded', data)
 
 
-    const dispatch = d3.dispatch("timelineBrushed", "openBranch", "switchTab", "mapped","unmapped", "chartCreated",  "pinned", "unpinned", "hover", "unhover");
+  const dispatch = d3.dispatch("timelineBrushed", "openBranch", "switchTab", "mapped", "unmapped", "chartCreated", "pinned", "unpinned", "hover", "unhover");
 
-    const map = Map(dispatch, data, dimensions);
-    const timeline = Timeline(dispatch, data, dimensions);
-    const tree = Tree(dispatch, data, dimensions);
-   
-
-    
+  const map = Map(dispatch, data, dimensions);
+  const timeline = Timeline(dispatch, data, dimensions);
+  const tree = Tree(dispatch, data, dimensions);
 
 
-  });
+
+});
