@@ -443,16 +443,24 @@ const Tree = (function (dispatch, data, dimensions) {
       .call(d3.axisLeft(y));
 
     function reduceData(value) {
-      if (chartData.length >= 5000 && chartData.indexOf(value) % Math.ceil(chartData.length / 5000) == 0) {
+      if (chartData.indexOf(value) % Math.ceil(chartData.length / 5000) == 0) {
         //console.log(chartData.length, Math.ceil(chartData.length / 5000));
         return value;
-      } else if (chartData.length <= 5000) return value;
+      } 
 
     }
 
 
     lineChart.append("path")
-      .datum(chartData.filter(d => reduceData(d)))
+      .datum(function () {
+        if (chartData.length >= 5000) {
+          console.log('reducing');
+         return chartData.filter(d => reduceData(d))
+        } else {
+          console.log('no reducing');
+          return chartData
+        }
+      })
       .attr('class', 'line')
       .attr('id', id)
       .attr("fill", "none")
