@@ -199,9 +199,10 @@ const Timeline = (function (dispatch, data, dimensions) {
     let h = d3.scaleOrdinal(["rgb(22,20,47)", "rgb(144,0,61)", "rgb(232,7,54)", "rgb(248,93,63)", "rgb(109,197,221)", "rgb(44,113,148)", "rgb(98,236,182)", "rgb(42,107,42)", "rgb(119,190,32)", "rgb(110,57,1)", "rgb(246,187,134)", "rgb(173,118,107)", "rgb(188,205,151)", "rgb(76,62,118)", "rgb(171,145,220)", "rgb(112,44,180)", "rgb(251,93,231)", "rgb(159,4,252)", "rgb(63,244,76)", "rgb(192,113,12)", "rgb(243,212,38)"])
 
     modeMarks.append('rect')
-      .attr('height', height)
-      .attr('width', 2.5)
+      .attr('height', 10)
+      .attr('width', 10)
       .attr('opacity', 0.7)
+      .attr("transform", "translate(0," + height + ")")
       .attr('fill', function (d) {
         return h(d.val)
       })
@@ -219,11 +220,13 @@ const Timeline = (function (dispatch, data, dimensions) {
           .style("top", (d3.event.pageY - 28) + "px")
           .style("color", 'white')
           .style("background", h(d.val));
+        dispatch.call('hover', this, d.time / 10000000, 'hi');
       })
       .on("mouseout", function (d) {
         div.transition()
           .duration(500)
           .style("opacity", 0);
+        dispatch.call('unhover', this)
       });
 
 
@@ -233,6 +236,7 @@ const Timeline = (function (dispatch, data, dimensions) {
       return d[xVal] / 10000000;
     }).map(x));
 
+    let overviewTab = d3.select('#overview');
     let pinnedTab = d3.select('#pinned');
     let allTab = d3.select('#all');
 
@@ -251,7 +255,11 @@ const Timeline = (function (dispatch, data, dimensions) {
           let chart = chartComps[i];
           try {
             //console.log(d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['style'].display)
-            if (chart.spec.pinned == true && pinnedTab.style('display') == 'block') {
+            if (chart.spec.default == true && overviewTab.style('display') == 'block') {
+              chart['axis'].domain(s.map(x.invert, x));
+              d3.select('#' + chart['id']).attr("d", chart['line']);
+              d3.select("#xAxis" + chart['id']).call(d3.axisBottom(chart['axis']));
+            } else if (chart.spec.pinned == true && pinnedTab.style('display') == 'block') {
               chart['axis'].domain(s.map(x.invert, x));
               d3.select('#' + chart['id']).attr("d", chart['line']);
               d3.select("#xAxis" + chart['id']).call(d3.axisBottom(chart['axis']));

@@ -1,4 +1,4 @@
-const Tree = (function (dispatch, data, dimensions) {
+const Tree = (function (dispatch, data, dimensions, default_charts) {
 
   let colorCycle = 0;
 
@@ -48,7 +48,7 @@ const Tree = (function (dispatch, data, dimensions) {
     },
     width: dimensions.tree.width,
     height: 200,
-    pinned: true,
+    pinned: false,
     default: true
   }
 
@@ -71,14 +71,20 @@ const Tree = (function (dispatch, data, dimensions) {
 
 
   dispatch.on('pinned.tree', function (spec, what, chartNo) {
-    if (spec.default != true) {
       d3.select(this).style('color', '#16132E')
         .attr('class', 'on');
-      id = lineChartGen2('pinned', what, pinnedLineChartSpec);
+    
+      let newWhat = {
+        data: what.data,
+        log: what.log,
+        x: what.x,
+        y: what.y,
+        title: what.log + ": " + what.y
+      }
+      id = lineChartGen2('pinned', newWhat, pinnedLineChartSpec);
       pinnedList = Object.assign({
         [chartNo]: id.chartNo
-      });
-    }
+      })
   });
 
   dispatch.on('unpinned.tree', function (spec, id) {
@@ -221,14 +227,10 @@ const Tree = (function (dispatch, data, dimensions) {
   }
 
 
-  starter = lineChartGen2('pinned', {
-    data: data['vehicle_gps_position'],
-    log: 'vehicle_gps_position',
-    x: 'timestamp',
-    y: 'alt'
-  }, defaultPinnedLineChartSpec);
-
-  dispatch.call('mapped', this, starter);
+  for (let i = 0; i < default_charts.length; i++){
+    let starter = lineChartGen2('overview', default_charts[i], defaultPinnedLineChartSpec);
+    if (i == 0) dispatch.call('mapped', this, starter);
+  }
 /*
   lineChartGen2('pinned', {
     data: 'vehicle_global_position',
@@ -249,79 +251,7 @@ const Tree = (function (dispatch, data, dimensions) {
   }, defaultPinnedLineChartSpec);
 */
 
-  function lineChartGen(where, what, options) {
-
-    df = data[what.data]
-    //console.log(where)
-    //console.log(what.data, what.x, what.y);
-    //console.log(df)
-    let yVal = what.y;
-    let xVal = what.x;
-    let vals = [];
-
-    for (let i = 0; i < df.length; i++) {
-      vals.push(df[i][yVal]);
-    }
-
-    var margin = {
-        top: options.margin.top,
-        right: options.margin.right,
-        bottom: options.margin.bottom,
-        left: options.margin.left
-      },
-      width = options.width // Use the window's width 
-      ,
-      height = options.height // Use the window's height
-
-    var svg = d3.select('#' + where)
-      .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
-      .attr("transform",
-        "translate(" + margin.left + "," + margin.top + ")");
-
-    var title = svg.append("text")
-      .attr("x", 0 + margin.left / 2)
-      .attr("y", 0 - (margin.top / 2))
-      .attr("text-anchor", "left")
-      .style("font-size", "14px")
-      .text(yVal);
-
-    var x = d3.scaleLinear()
-      .domain(d3.extent(df, function (d) {
-        return d[xVal] / 10000000;
-      }))
-      .range([0, width]);
-    svg.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
-
-    var y = d3.scaleLinear()
-      .domain(d3.extent(df, function (d) {
-        return d[yVal];
-      }))
-      .range([height, 0]);
-    svg.append("g")
-      .call(d3.axisLeft(y));
-
-    svg.append("path")
-      .datum(df)
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-      .attr("d", d3.line()
-        .x(function (d) {
-          return x(d[xVal] / 10000000)
-        })
-        .y(function (d) {
-          return y(d[yVal])
-        })
-      )
-  }
-
-
-
+ 
   function lineChartGen2(where, what, spec) {
 
     color = "#16132E"
@@ -365,7 +295,12 @@ const Tree = (function (dispatch, data, dimensions) {
       .attr("y", margin.top - 5)
       .attr("text-anchor", "left")
       .style("font-size", "14px")
-      .text(yVal);
+      .text(function(){
+        if (what.title != undefined){
+          return what.title
+        }
+        else { return yVal }
+      });
 
     div.append('a')
       .attr('id', 'mapSel' + chartNo)
@@ -402,13 +337,7 @@ const Tree = (function (dispatch, data, dimensions) {
         }
       })
       .append('i')
-      .attr('class', function () {
-        if (spec.default === true) {
-          return "mdi mdi-pin-off small"
-        } else {
-          return "mdi mdi-pin small"
-        }
-      })
+      .attr('class', "mdi mdi-pin small")
 
 
 
