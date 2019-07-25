@@ -95,7 +95,7 @@ const Timeline = (function (dispatch, data, dimensions) {
   function lineChartGen(where, what, options, color) {
     d3.select('#' + where).selectAll('svg').remove();
 
-    df = data[what.data]
+    df = data[what.log]
     //console.log(where)
     //console.log(what.data, what.x, what.y);
     //console.log(df)
@@ -233,22 +233,33 @@ const Timeline = (function (dispatch, data, dimensions) {
       return d[xVal] / 10000000;
     }).map(x));
 
+    let pinnedTab = d3.select('#pinned');
+    let allTab = d3.select('#all');
+
     function brushed() {
+
+
 
       // if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
 
       var s = d3.event.selection || x.range();
 
+      dispatch.call('timelineBrushed', this, [s.map(x.invert)[0], s.map(x.invert)[1]]);
+
       if (chartComps.length > 0) {
         for (let i = 0; i < chartComps.length; i++) {
+          let chart = chartComps[i];
           try {
             //console.log(d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['style'].display)
-            if (d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['style'].display === 'block' ||
-              d3.select('#' + chartComps[i]['id'])['_groups'][0][0]['parentElement']['parentElement']['parentElement']['parentElement']['parentElement']['parentElement']['parentElement'].display === 'block') {
-              chartComps[i]['axis'].domain(s.map(x.invert, x));
-              d3.select('#' + chartComps[i]['id']).attr("d", chartComps[i]['line']);
-              d3.select("#xAxis" + chartComps[i]['id']).call(d3.axisBottom(chartComps[i]['axis']));
-
+            if (chart.spec.pinned == true && pinnedTab.style('display') == 'block') {
+              chart['axis'].domain(s.map(x.invert, x));
+              d3.select('#' + chart['id']).attr("d", chart['line']);
+              d3.select("#xAxis" + chart['id']).call(d3.axisBottom(chart['axis']));
+            } else if (chart.spec.pinned == false && allTab.style('display') == 'block' && d3.select('#' + chart.what.log).attr('class') == 'active') {
+              //console.log('#' + chart.what.log,d3.select('#' + chart.what.log).attr('class') == 'active');
+              chart['axis'].domain(s.map(x.invert, x));
+              d3.select('#' + chart['id']).attr("d", chart['line']);
+              d3.select("#xAxis" + chart['id']).call(d3.axisBottom(chart['axis']));
             }
 
           } catch (err) {
@@ -257,7 +268,7 @@ const Timeline = (function (dispatch, data, dimensions) {
         }
       }
 
-      dispatch.call('timelineBrushed', this, [s.map(x.invert)[0], s.map(x.invert)[1]]);
+
     }
 
     return x;

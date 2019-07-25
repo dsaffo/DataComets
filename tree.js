@@ -78,7 +78,6 @@ const Tree = (function (dispatch, data, dimensions) {
       pinnedList = Object.assign({
         [chartNo]: id.chartNo
       });
-      //console.log(chartNo, id);
     }
   });
 
@@ -136,11 +135,18 @@ const Tree = (function (dispatch, data, dimensions) {
     .attr('class', "collapsible-header")
     .html(String);
 
-
+  
 
   for (let i = 0; i < logs.length; i++) {
     let log = logs[i];
     let singles = [];
+    
+    //console.log(log, log.length);
+    
+    
+    
+ 
+    
     ul.select("#" + log)
       .append('div')
       .attr("class", "collapsible-body")
@@ -150,6 +156,22 @@ const Tree = (function (dispatch, data, dimensions) {
     if (log != '') {
       let log_data = data[log];
       let records = Object.keys(log_data[0]);
+      
+    
+      
+      function reduceData(value) {
+      if (log_data.indexOf(value) % Math.ceil(log_data.length / 5000) == 0) {
+        return value;
+      } 
+      
+
+    }
+    
+    if (log_data.length >= 5000){
+      console.log('reducing')
+      log_data = log_data.filter(d=> reduceData(d));
+    }
+      console.log(log_data.length);
 
       for (let i = 0; i < records.length; i++) {
 
@@ -161,7 +183,8 @@ const Tree = (function (dispatch, data, dimensions) {
 
         if (record != "timestamp" && !allEqual(vals)) {
           lineChartGen2(log + "-body", {
-            data: log,
+            data: log_data,
+            log: log,
             x: "timestamp",
             y: record
           }, treeLineChartSpec);
@@ -199,13 +222,14 @@ const Tree = (function (dispatch, data, dimensions) {
 
 
   starter = lineChartGen2('pinned', {
-    data: 'vehicle_gps_position',
+    data: data['vehicle_gps_position'],
+    log: 'vehicle_gps_position',
     x: 'timestamp',
     y: 'alt'
   }, defaultPinnedLineChartSpec);
 
   dispatch.call('mapped', this, starter);
-
+/*
   lineChartGen2('pinned', {
     data: 'vehicle_global_position',
     x: 'timestamp',
@@ -223,7 +247,7 @@ const Tree = (function (dispatch, data, dimensions) {
     x: 'timestamp',
     y: 'control[3]'
   }, defaultPinnedLineChartSpec);
-
+*/
 
   function lineChartGen(where, what, options) {
 
@@ -316,7 +340,7 @@ const Tree = (function (dispatch, data, dimensions) {
       colorCycle = 0;
     }
 
-    let chartData = data[what.data]
+    let chartData = what.data
     let yVal = what.y;
     let xVal = what.x;
 
@@ -442,25 +466,10 @@ const Tree = (function (dispatch, data, dimensions) {
       .attr('class', 'axis')
       .call(d3.axisLeft(y));
 
-    function reduceData(value) {
-      if (chartData.indexOf(value) % Math.ceil(chartData.length / 5000) == 0) {
-        //console.log(chartData.length, Math.ceil(chartData.length / 5000));
-        return value;
-      } 
-
-    }
-
+   
 
     lineChart.append("path")
-      .datum(function () {
-        if (chartData.length >= 5000) {
-          console.log('reducing');
-         return chartData.filter(d => reduceData(d))
-        } else {
-          console.log('no reducing');
-          return chartData
-        }
-      })
+      .datum(chartData)
       .attr('class', 'line')
       .attr('id', id)
       .attr("fill", "none")
