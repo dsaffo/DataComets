@@ -35,6 +35,16 @@
 <body style=" height: 100%; margin: 0; padding: 0 ">
 
 
+  <div id="m1" class="modal modal-fixed-footer">
+    <div class="modal-content">
+      <h4>Modal Header</h4>
+      <p>A bunch of text</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+    </div>
+  </div>
+  
 
   <ul id="slide-out" class="sidenav">
 
@@ -122,9 +132,9 @@
             </div>
           </form>
           <ul class="right">
-            <li><a><i class="material-icons">arrow_upward</i></a></li>
+            <li><a id="top"><i class="material-icons">arrow_upward</i></a></li>
             <li><a><i class="material-icons">unfold_less</i></a></li>
-            <li><a><i class="material-icons">note_add</i></a></li>
+            <li><a class="modal-trigger" href="#m1"><i class="material-icons">note_add</i></a></li>
           </ul>
         </div>
         <div class="nav-content">
