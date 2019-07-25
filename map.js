@@ -163,9 +163,9 @@ const Map = (function (dispatch, data, dimensions) {
       pathTimes.push(data[log][i]['timestamp'])
     }
 
-    for (let i = 0; i < data[what.data].length; i++) {
-      attrTimes.push(data[what.data][i]['timestamp'])
-      attrData.push(data[what.data][i][what.y])
+    for (let i = 0; i < data[what.log].length; i++) {
+      attrTimes.push(data[what.log][i]['timestamp'])
+      attrData.push(data[what.log][i][what.y])
     }
 
     if (pathTimes.length === attrTimes.length) {
