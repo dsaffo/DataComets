@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 let topButton = document.getElementById('top');
 
-top.addEventListener('click', function(){
+topButton.addEventListener('click', function(){
     //console.log('hello');
     //document.getElementById('tree-container').scrollTop = 0; // For Safari
     document.getElementById('tree-container').scrollTop = 0; // For Chrome, Firefox, IE and Opera
