@@ -60,7 +60,8 @@ const Map = (function (dispatch, data, dimensions) {
   */
 
   let selections = {
-    window: []
+    window: [0, data['vehicle_gps_position'].length - 3],
+    attrData: [0]
   }
 
   let setPoints = [];
@@ -128,7 +129,7 @@ const Map = (function (dispatch, data, dimensions) {
         }
       } else if (end == 'x') {
         if (data[log][i]['timestamp'] / 10000000 > window[1]) {
-          end = i - 1
+          end = i - 3
         }
       }
     }
@@ -137,7 +138,7 @@ const Map = (function (dispatch, data, dimensions) {
       start = 0
     }
     if (end == 'x') {
-      end = data[log].length - 1
+      end = data[log].length - 3
     }
     selections.window = [start, end]
     update()
@@ -147,6 +148,7 @@ const Map = (function (dispatch, data, dimensions) {
   dispatch.on("mapped", function (chartInfo) {
     //chartDeets = chartInfo.what;
     attrData = align(chartInfo.what);
+    selections.attrData = attrData;
     colorScale = selectColorScale(attrData, 'Purples');
     drawPath(data[log], attrData, colorScale);
     update();
@@ -218,8 +220,13 @@ const Map = (function (dispatch, data, dimensions) {
     d3.selectAll('.gpsEst').remove();
     d3.selectAll('.ghost').remove();
     d3.selectAll('.setpoints').remove();
+     d3.select('.head').remove();
+
 
     let svg = d3.select("#map-canvas").select("svg").append("svg")
+    
+    let topSvg = d3.select("#map-canvas").select("svg")
+    
 
     let estGps = svg.append('g').selectAll('path').data([data['vehicle_global_position']]).enter()
 
@@ -287,6 +294,23 @@ const Map = (function (dispatch, data, dimensions) {
           dispatch.call('unhover', this)
         });
     }
+    
+    let head = topSvg.append('g').selectAll('circle').data([selections.window[1]]).enter();
+
+    head.append('circle')
+      .attr('fill', function(){
+        return colorScale(attrData[selections.window[1]]);
+      })
+      .attr('cx', function (d) {
+        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1]]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1]]['lon'] / 10000000]).x
+      })
+      .attr('cy', function (d) {
+        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1]]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1]]['lon'] / 10000000]).y
+      })
+      .attr('r', 10)
+      .attr('class', 'head')
+
+
 
     let setpoints = svg.append('g').selectAll('circle').data(setPoints).enter()
     //console.log(setPoints);
@@ -303,6 +327,8 @@ const Map = (function (dispatch, data, dimensions) {
       })
       .attr('r', 6)
       .attr('class', 'setpoints');
+    
+    
 
   }
 
@@ -330,6 +356,21 @@ const Map = (function (dispatch, data, dimensions) {
   }
 
   function update() {
+    
+    d3.select('.head')
+      .attr('fill', function(){
+        return colorScale(selections.attrData[selections.window[1]]);
+      })
+      .attr('cx', function (d) {
+        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1] + 2]['lon'] / 10000000]).x
+      })
+      .attr('cy', function (d) {
+        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1] + 2]['lon'] / 10000000]).y
+      })
+      .attr('r', 10)
+    
+    
+
     d3.selectAll(".pathSegments")
       .style('stroke-width', 5)
       .style('display', function () {
@@ -383,6 +424,8 @@ const Map = (function (dispatch, data, dimensions) {
       .attr('cy', function (d) {
         return map.latLngToLayerPoint([d.lat, d.lon]).y
       })
+
+
 
   }
 
