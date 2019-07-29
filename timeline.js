@@ -51,7 +51,7 @@ const Timeline = (function (dispatch, data, dimensions) {
     }
   }
 
-  console.log(modes)
+  //console.log(modes)
 
   dispatch.on('chartCreated.timeline', function (comps) {
     chartComps.push(comps)

@@ -174,10 +174,10 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
     }
     
     if (log_data.length >= 5000){
-      console.log('reducing')
+      //console.log('reducing')
       log_data = log_data.filter(d=> reduceData(d));
     }
-      console.log(log_data.length);
+      //console.log(log_data.length);
 
       for (let i = 0; i < records.length; i++) {
 

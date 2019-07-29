@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
 let topButton = document.getElementById('top');
 
 top.addEventListener('click', function(){
-  console.log('hello');
+    //console.log('hello');
     //document.getElementById('tree-container').scrollTop = 0; // For Safari
     document.getElementById('tree-container').scrollTop = 0; // For Chrome, Firefox, IE and Opera
 });
@@ -40,7 +40,7 @@ d3.json('data/data.json').then(function (data) {
 
 
 
-  console.log('loaded', data)
+  //console.log('loaded', data)
 
 
 
