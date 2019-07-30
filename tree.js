@@ -71,20 +71,20 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
 
 
   dispatch.on('pinned.tree', function (spec, what, chartNo) {
-      d3.select(this).style('color', '#16132E')
-        .attr('class', 'on');
-    
-      let newWhat = {
-        data: what.data,
-        log: what.log,
-        x: what.x,
-        y: what.y,
-        title: what.log + ": " + what.y
-      }
-      id = lineChartGen2('pinned', newWhat, pinnedLineChartSpec);
-      pinnedList = Object.assign({
+    d3.select(this).style('color', '#16132E')
+      .attr('class', 'on');
+
+    let newWhat = {
+      data: what.data,
+      log: what.log,
+      x: what.x,
+      y: what.y,
+      title: what.log + ": " + what.y
+    }
+    id = lineChartGen2('pinned', newWhat, pinnedLineChartSpec);
+    pinnedList = Object.assign({
         [chartNo]: id.chartNo
-      })
+    })
   });
 
   dispatch.on('unpinned.tree', function (spec, id) {
@@ -125,6 +125,10 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
 
   let logs = Object.keys(data) //.slice(8, 9);
 
+  blacklist = logs.indexOf('ekf2_timestamps')
+
+  logs.splice(blacklist, 1)
+
   let recordXs = [];
 
   //logs.unshift("Overview");
@@ -141,18 +145,18 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
     .attr('class', "collapsible-header")
     .html(String);
 
-  
+
 
   for (let i = 0; i < logs.length; i++) {
     let log = logs[i];
     let singles = [];
-    
+
     //console.log(log, log.length);
-    
-    
-    
- 
-    
+
+
+
+
+
     ul.select("#" + log)
       .append('div')
       .attr("class", "collapsible-body")
@@ -162,22 +166,17 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
     if (log != '') {
       let log_data = data[log];
       let records = Object.keys(log_data[0]);
-      
-    
-      
-      function reduceData(value) {
-      if (log_data.indexOf(value) % Math.ceil(log_data.length / 5000) == 0) {
-        return value;
-      } 
-      
 
-    }
-    
-    if (log_data.length >= 5000){
-      //console.log('reducing')
-      log_data = log_data.filter(d=> reduceData(d));
-    }
-      //console.log(log_data.length);
+
+
+      function reduceData(value) {
+        if (log_data.indexOf(value) % Math.ceil(log_data.length / 5000) == 0) {
+          return value;
+        }
+
+
+      }
+
 
       for (let i = 0; i < records.length; i++) {
 
@@ -227,32 +226,33 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
   }
 
 
-  for (let i = 0; i < default_charts.length; i++){
+  for (let i = 0; i < default_charts.length; i++) {
     let starter = lineChartGen2('overview', default_charts[i], defaultPinnedLineChartSpec);
     if (i == 0) dispatch.call('mapped', this, starter);
   }
-/*
-  lineChartGen2('pinned', {
-    data: 'vehicle_global_position',
-    x: 'timestamp',
-    y: 'alt'
-  }, defaultPinnedLineChartSpec);
+  /*
+    lineChartGen2('pinned', {
+      data: 'vehicle_global_position',
+      x: 'timestamp',
+      y: 'alt'
+    }, defaultPinnedLineChartSpec);
 
-  lineChartGen2('pinned', {
-    data: 'vehicle_air_data',
-    x: 'timestamp',
-    y: 'baro_alt_meter'
-  }, defaultPinnedLineChartSpec);
+    lineChartGen2('pinned', {
+      data: 'vehicle_air_data',
+      x: 'timestamp',
+      y: 'baro_alt_meter'
+    }, defaultPinnedLineChartSpec);
 
-  lineChartGen2('pinned', {
-    data: 'actuator_controls_0',
-    x: 'timestamp',
-    y: 'control[3]'
-  }, defaultPinnedLineChartSpec);
-*/
+    lineChartGen2('pinned', {
+      data: 'actuator_controls_0',
+      x: 'timestamp',
+      y: 'control[3]'
+    }, defaultPinnedLineChartSpec);
+  */
 
- 
+
   function lineChartGen2(where, what, spec) {
+
 
     color = "#16132E"
 
@@ -295,11 +295,12 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
       .attr("y", margin.top - 5)
       .attr("text-anchor", "left")
       .style("font-size", "14px")
-      .text(function(){
-        if (what.title != undefined){
+      .text(function () {
+        if (what.title != undefined) {
           return what.title
+        } else {
+          return yVal
         }
-        else { return yVal }
       });
 
     div.append('a')
@@ -366,14 +367,54 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
 
     let lineGen = d3.line()
       .x(function (d) {
-        return x(d[xVal] / 10000000)
+        return x(d.x)
       })
       .y(function (d) {
-        return y(d[yVal])
+        return y(d.y)
+      }).curve(d3.curveMonotoneX);
+
+    let lineGen2 = d3.line()
+      .x(function (d) {
+        return d.x
+      })
+      .y(function (d) {
+        return d.y
       }).curve(d3.curveMonotoneX);
 
 
+    let xy = [];
+    let yvals = [];
+
+
+    for (let i = 0; i < chartData.length; i++) {
+      yvals.push(chartData[i][yVal]);
+      xy.push({
+        x: chartData[i][xVal] / 10000000,
+        y: chartData[i][yVal]
+      });
+    }
+
+
+
+    simple = simplify(xy, 0.01, false);
+
+
+
     let x = d3.scaleLinear()
+      .domain(d3.extent(simple, function (d) {
+        return d.x;
+      }))
+      .range([0, width - margin.right]);
+
+    let y = d3.scaleLinear()
+      .domain(d3.extent(simple, function (d) {
+        return d.y;
+      }))
+      .range([height - margin.top, 0]);
+
+
+    /*  
+     let x = d3.scaleLinear()
       .domain(d3.extent(chartData, function (d) {
         return d[xVal] / 10000000;
       }))
@@ -384,6 +425,8 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
         return d[yVal];
       }))
       .range([height - margin.top, 0]);
+    */
+
 
     axes.append("g")
       .attr("transform", "translate(0," + height + ")")
@@ -395,10 +438,16 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
       .attr('class', 'axis')
       .call(d3.axisLeft(y));
 
-   
+
+
+    let newX = d3.scaleLinear()
+      .domain(d3.extent(simple, function (d) {
+        return d.x;
+      }))
+      .range([0, width - margin.right]);
 
     lineChart.append("path")
-      .datum(chartData)
+      .datum(simple)
       .attr('class', 'line')
       .attr('id', id)
       .attr("fill", "none")
@@ -469,6 +518,7 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
     chartNo += 1;
 
     return chartInfo
+
   }
 
 

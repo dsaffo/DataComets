@@ -39,9 +39,27 @@ topButton.addEventListener('click', function(){
 d3.json('data/data.json').then(function (data) {
 
 
+     function reduceData(value) {
+      if (log_data.indexOf(value) % Math.ceil(log_data.length / 10000) == 0) {
+        return value;
+      } 
+    }
 
-  //console.log('loaded', data)
-
+  console.log('loaded', data)
+  
+  
+  let logs = Object.keys(data)
+  
+ /* for (let i = 0; i < logs[i].length; i++){
+    log_data = data[logs[i]]
+    if (log_data.length >= 10000){
+        console.log('reducing')
+        log_data = log_data.filter(d=> reduceData(d));
+      }
+        console.log(log_data.length);
+        data[logs[i]] = log_data;
+    }
+*/
 
 
   const dispatch = d3.dispatch("timelineBrushed", "openBranch", "switchTab", "mapped", "unmapped", "chartCreated", "pinned", "unpinned", "hover", "unhover");
