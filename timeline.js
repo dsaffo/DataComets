@@ -95,7 +95,7 @@ const Timeline = (function (dispatch, data, dimensions) {
   function lineChartGen(where, what, options, color) {
     d3.select('#' + where).selectAll('svg').remove();
 
-    df = data[what.log]
+    df = what.data;
     //console.log(where)
     //console.log(what.data, what.x, what.y);
     //console.log(df)

@@ -61,6 +61,7 @@ const Map = (function (dispatch, data, dimensions) {
 
   let selections = {
     window: [0, data['vehicle_gps_position'].length - 3],
+    prevWindow: [0, data['vehicle_gps_position'].length - 3],
     attrData: [0]
   }
 
@@ -118,31 +119,57 @@ const Map = (function (dispatch, data, dimensions) {
 
   map.on("moveend", update);
 
+  
   dispatch.on('timelineBrushed.map', function (window) {
     let start = 'x';
     let end = 'x';
-    for (let i = 0; i < data[log].length; i++) {
-      if (start == 'x') {
-        //console.log(Math.floor(data[log][i]['timestamp'] / 10000000))
-        if (data[log][i]['timestamp'] / 10000000 > window[0]) {
-          start = i - 1
-        }
-      } else if (end == 'x') {
-        if (data[log][i]['timestamp'] / 10000000 > window[1]) {
-          end = i - 3
-        }
-      }
-    }
+    
+              
+    let bisect = d3.bisector(function(d) { return d.timestamp / 10000000}).left;
+    
+    start = bisect(data[log], window[0]);
+    
+    end = bisect(data[log], window[1]) - 3;
+  
+    
 
-    if (start == 'x') {
+    if (start == 'x' || undefined) {
       start = 0
     }
-    if (end == 'x') {
+    if (end == 'x' || undefined) {
       end = data[log].length - 3
     }
+    
     selections.window = [start, end]
-    update()
+    
+     d3.selectAll(".pathSegments")
+      .style('display', function () {
+        if (!gpsRecordedSwitch.checked) {
+          return 'none'
+        } else {
+          let id = d3.select(this)['_groups'][0][0]['id'].substring(3)
+          if (id < selections.window[0] || id > selections.window[1]) {
+            return 'none'
+          } else {
+            return 'initial';
+          }
+        }
+      });
+    
+     d3.select('.head')
+      .attr('fill', function(){
+        return colorScale(selections.attrData[selections.window[1]]);
+      })
+      .attr('cx', function (d) {
+        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1] + 2]['lon'] / 10000000]).x
+      })
+      .attr('cy', function (d) {
+        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1] + 2]['lon'] / 10000000]).y
+      });
+    
+    //update()
   });
+
 
   let chartDeets = {};
   dispatch.on("mapped", function (chartInfo) {
@@ -165,9 +192,9 @@ const Map = (function (dispatch, data, dimensions) {
       pathTimes.push(data[log][i]['timestamp'])
     }
 
-    for (let i = 0; i < data[what.log].length; i++) {
-      attrTimes.push(data[what.log][i]['timestamp'])
-      attrData.push(data[what.log][i][what.y])
+    for (let i = 0; i <  what.data.length; i++) {
+      attrTimes.push( what.data[i]['timestamp'])
+      attrData.push( what.data[i][what.y])
     }
 
     if (pathTimes.length === attrTimes.length) {
@@ -358,33 +385,19 @@ const Map = (function (dispatch, data, dimensions) {
   function update() {
     
     d3.select('.head')
-      .attr('fill', function(){
-        return colorScale(selections.attrData[selections.window[1]]);
-      })
+      .attr('r', 10)
       .attr('cx', function (d) {
         return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1] + 2]['lon'] / 10000000]).x
       })
       .attr('cy', function (d) {
         return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1] + 2]['lon'] / 10000000]).y
-      })
-      .attr('r', 10)
+      });
+    
     
     
 
     d3.selectAll(".pathSegments")
       .style('stroke-width', 5)
-      .style('display', function () {
-        if (!gpsRecordedSwitch.checked) {
-          return 'none'
-        } else {
-          let id = d3.select(this)['_groups'][0][0]['id'].substring(3)
-          if (id < selections.window[0] || id > selections.window[1]) {
-            return 'none'
-          } else {
-            return 'initial';
-          }
-        }
-      })
       .attr('d', lineGen)
 
     d3.selectAll(".gpsEst")

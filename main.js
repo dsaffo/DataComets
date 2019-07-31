@@ -36,6 +36,8 @@ topButton.addEventListener('click', function(){
 });
 
 
+
+
 d3.json('data/data.json').then(function (data) {
 
 
@@ -162,6 +164,7 @@ d3.json('data/data.json').then(function (data) {
 
   const map = Map(dispatch, data, dimensions);
   const timeline = Timeline(dispatch, data, dimensions);
+  const overview = Overview(dispatch, data, dimensions);
   const tree = Tree(dispatch, data, dimensions, default_charts);
 
 
