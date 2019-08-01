@@ -1,8 +1,7 @@
-const Tree = (function (dispatch, data, dimensions, default_charts) {
+const Tree = (function (dispatch, data, dimensions) {
 
   let colorCycle = 0;
 
-  let chartNo = 0;
 
   let pinnedList = {};
 
@@ -243,10 +242,7 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
   }
 
 
-  for (let i = 0; i < default_charts.length; i++) {
-    let starter = overviewChartGen('overview', default_charts[i], defaultPinnedLineChartSpec);
-    if (i == 0) dispatch.call('mapped', this, starter);
-  }
+
 
   function lineChartGen2(where, what, spec) {
 
@@ -390,10 +386,25 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
         y: chartData[i][yVal]
       });
     }
-
-
-
-    simple = simplify(xy, 0.01, false);
+    index = 1;
+    while (chartData[0][yVal] == chartData[index][yVal]){
+      
+      index += 1;
+    }
+    
+    //console.log(chartData[0][yVal], chartData[index][yVal], chartData[0][yVal] - chartData[index][yVal])
+    
+    tol = Math.abs(chartData[0][yVal] - chartData[index][yVal]);
+    
+    if (tol >= 1){
+      tol = 1;
+    } else if (tol < 1 && tol >= 0.1){
+      tol = 0.5;
+    } else {
+      tol = 0.01;
+    }
+    
+    simple = simplify(xy, tol, false);
 
     if (yVal == 'q[1]') {
       console.log(xy)
@@ -420,7 +431,7 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
 
     axes.append("g")
       .attr('class', 'axis')
-      .call(d3.axisLeft(y).tickFormat(d3.format(",.2r")));
+      .call(d3.axisLeft(y).ticks(8).tickFormat(d3.format(",.2r")));
 
 
 
@@ -493,245 +504,13 @@ const Tree = (function (dispatch, data, dimensions, default_charts) {
     }
 
     dispatch.call('chartCreated', this, chartInfo)
-    chartNo += 1;
+    
 
     return chartInfo
 
   }
 
-  function overviewChartGen(where, what, spec) {
-
-    color = "#16132E"
-
-    let chartData = what.data
-    let yVal = what.y;
-    let xVal = what.x;
-
-    let id = 'chart' + chartNo;
-
-    let margin = {
-      top: spec.margin.top,
-      right: spec.margin.right,
-      bottom: spec.margin.bottom,
-      left: spec.margin.left
-    }
-    let width = spec.width - margin.left - margin.right;
-    let height = spec.height - margin.top - margin.bottom;
-
-    let div = d3.select('#' + where)
-      .append('div')
-      .attr('id', 'card' + id)
-      .attr('class', 'card-panel')
-
-    var title = div.append("span")
-      .attr("x", margin.right + margin.left + 10)
-      .attr("y", margin.top - 5)
-      .attr("text-anchor", "left")
-      .style("font-size", "14px")
-      .text(function () {
-        if (what.title != undefined) {
-          return what.title
-        } else {
-          return yVal
-        }
-      });
-
-    div.append('a')
-      .attr('id', 'mapSel' + chartNo)
-      .style('float', 'right')
-      .style('color', 'lightgrey')
-      .append('i')
-      .attr('class', 'mdi mdi-map small')
-      .on('click', function () {
-        dispatch.call('mapped', this, chartInfo)
-      });
-
-    div.append('a')
-      .style('float', 'right')
-      .style('color', function () {
-        if (spec.pinned === true) {
-          return "#16132E"
-        } else {
-          return "lightgrey"
-        }
-      })
-      .attr('class', function () {
-        if (spec.pinned === true) {
-          return "on"
-        } else {
-          return "off"
-        }
-      })
-      .on('click', function () {
-        if (d3.select(this)["_groups"][0][0]['classList'][0] === "off") {
-          dispatch.call('pinned', this, spec, what, id)
-        } else if (d3.select(this)["_groups"][0][0]['classList'][0] === "on") {
-          console.log('onclick')
-          dispatch.call('unpinned', this, spec, id)
-        }
-      })
-      .append('i')
-      .attr('class', "mdi mdi-pin small")
-
-
-
-
-    let svg = div.append("svg")
-      .attr("width", width)
-      .attr("height", height + margin.bottom);
-
-    let clip = svg.append("defs").append("clipPath")
-      .attr("id", "clip" + chartNo)
-      .append("rect")
-      .attr("width", width - margin.right)
-      .attr("height", height)
-    //.attr("x", 0)
-    //.attr("y", 0); 
-
-
-
-    let lineChart = svg.append("g")
-      .attr('id', 'main' + id)
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-      .attr("clip-path", "url(#clip" + chartNo + ")");
-
-    var axes = svg.append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    let lineGen = d3.line()
-      .x(function (d) {
-        return x(d.x)
-      })
-      .y(function (d) {
-        return y(d.y)
-      }).curve(d3.curveMonotoneX);
-
-    let lineGen2 = d3.line()
-      .x(function (d) {
-        return d.x
-      })
-      .y(function (d) {
-        return d.y
-      }).curve(d3.curveMonotoneX);
-
-
-    let xy = [];
-    let yvals = [];
-
-
-    for (let i = 0; i < chartData.length; i++) {
-      yvals.push(chartData[i][yVal]);
-      xy.push({
-        x: chartData[i][xVal] / 10000000,
-        y: chartData[i][yVal]
-      });
-    }
-
-
-
-    simple = simplify(xy, 0.01, false);
-
-
-
-    let x = d3.scaleLinear()
-      .domain(d3.extent(simple, function (d) {
-        return d.x;
-      }))
-      .range([0, width - margin.right]);
-
-    let y = d3.scaleLinear()
-      .domain(d3.extent(simple, function (d) {
-        return d.y;
-      }))
-      .range([height - margin.top, 0]);
-
-    axes.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .attr('id', 'xAxis' + id)
-      .attr('class', 'axis')
-      .call(d3.axisBottom(x));
-
-    axes.append("g")
-      .attr('class', 'axis')
-      .call(d3.axisLeft(y).tickFormat(d3.format(",.2r")));
-
-
-
-    lineChart.append("path")
-      .datum(simple)
-      .attr('class', 'line')
-      .attr('id', id)
-      .attr("fill", "none")
-      .attr("stroke", color)
-      .attr("stroke-width", 2)
-      .attr("d", lineGen)
-
-    let bisect = d3.bisector(function (d) {
-      return d[xVal];
-    }).left;
-
-
-    var focus = lineChart
-      .append('g')
-      .append('rect')
-      .attr("id", 'hover' + chartNo)
-      .style("fill", "#16132E")
-      .attr("stroke", "#16132E")
-      .attr('height', height)
-      .attr('width', 1)
-      .style("opacity", 0)
-
-    svg
-      .append('rect')
-      .style("fill", "none")
-      .style("pointer-events", "all")
-      .attr('width', width - margin.right)
-      .attr('height', height)
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-      .on('mouseover', mouseover)
-      .on('mousemove', mousemove)
-      .on('mouseout', mouseout);
-
-    function mouseover() {
-      focus.style("opacity", 0.5)
-    }
-
-    function mousemove() {
-      // recover coordinate we need
-      var x0 = x.invert(d3.mouse(this)[0]);
-      var i = bisect(chartData, x0 * 10000000, 1);
-      //console.log(x0, i)
-      selectedData = chartData[i]
-      focus.attr("x", x(selectedData[xVal] / 10000000))
-        .attr("y", 0)
-
-      dispatch.call('unhover', this)
-      dispatch.call('hover', this, selectedData[xVal] / 10000000, chartNo)
-
-    }
-
-    function mouseout() {
-      focus.style("opacity", 0)
-      dispatch.call('unhover', this)
-    }
-
-    let chartInfo = {
-      id: id,
-      line: lineGen,
-      axis: x,
-      spec: spec,
-      what: what,
-      chartNo: chartNo,
-      color: color
-    }
-
-    dispatch.call('chartCreated', this, chartInfo)
-    chartNo += 1;
-
-    return chartInfo
-
-  }
-
+  
 
   dispatch.on('hover.tree', function (time, idNo) {
 

@@ -174,6 +174,7 @@ const Map = (function (dispatch, data, dimensions) {
   let chartDeets = {};
   dispatch.on("mapped", function (chartInfo) {
     //chartDeets = chartInfo.what;
+    console.log(chartInfo)
     attrData = align(chartInfo.what);
     selections.attrData = attrData;
     colorScale = selectColorScale(attrData, 'Purples');

@@ -14,3 +14,14 @@ function convertQuant(data, record_name) {
   
   return results;
 }
+
+function convertMillimeters(data, record){
+  
+  let newData = data;
+  
+  for (let i = 0; i < data.length; i++){
+    newData[i][record] = data[i][record] / 1000;
+  }
+  
+  return newData;
+}
