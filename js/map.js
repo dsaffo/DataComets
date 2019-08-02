@@ -259,10 +259,10 @@ const Map = (function (dispatch, data, dimensions) {
     let estGps = svg.append('g').selectAll('path').data([data['vehicle_global_position']]).enter()
 
     estGps.append('path')
-      .attr('stroke', 'red')
+      .attr('stroke', '#F7AC40')
       .attr('fill', 'none')
       .style('stroke-width', 15)
-      .style('opacity', 0.2)
+      .style('opacity', 0.5)
       .attr('d', lineGen2)
       .attr("class", "gpsEst")
 
@@ -345,7 +345,7 @@ const Map = (function (dispatch, data, dimensions) {
 
     setpoints.append('circle')
       .attr('fill', 'none')
-      .attr('stroke', '#16132E')
+      .attr('stroke', '#F7AC40')
       .attr('stroke-width', 4)
       .attr('cx', function (d) {
         return map.latLngToLayerPoint([d.lat, d.lon]).x
