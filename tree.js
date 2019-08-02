@@ -69,7 +69,7 @@ const Tree = (function (dispatch, data, dimensions) {
   const allEqual = arr => arr.every(v => v === arr[0])
 
 
-  dispatch.on('pinned.tree', function (spec, what, chartNo) {
+  dispatch.on('pinned.tree', function (spec, what,id) {
     d3.select(this).style('color', '#16132E')
       .attr('class', 'on');
 
@@ -80,22 +80,28 @@ const Tree = (function (dispatch, data, dimensions) {
       y: what.y,
       title: what.log + ": " + what.y
     }
-    id = lineChartGen2('pinned', newWhat, pinnedLineChartSpec);
-    pinnedList = Object.assign({
-        [chartNo]: id.chartNo
-    })
+     pinnedList = Object.assign({
+        [id.substr(5)]: chartNo 
+    }, {[chartNo]:id.substr(5)})
+    lineChartGen2('pinned', newWhat, pinnedLineChartSpec);
+   
+    console.log(pinnedList)
   });
 
   dispatch.on('unpinned.tree', function (spec, id) {
     if (spec.pinned === true) {
       d3.select(this).style('color', 'lightgrey')
         .attr('class', 'off');
+      sel = pinnedList['299'];
+      d3.select('#pinchart' + sel).style('color', 'lightgrey')
+        .attr('class', 'off');
       d3.select('#card' + id).remove();
     } else {
-      sel = pinnedList[id]
+      console.log(id)
+      sel = pinnedList[id.substr(5)]
       d3.select(this).style('color', 'lightgrey')
         .attr('class', 'off');
-      console.log('#cardchart' + sel)
+      //console.log('#cardchart' + sel)
       d3.select('#cardchart' + sel).remove();
     }
     chartList.splice(id, id);
@@ -195,6 +201,13 @@ const Tree = (function (dispatch, data, dimensions) {
             log_data[i][record] = xyz[i][2]
             title = 'yaw'
           }
+        }
+        
+        
+        rads = ['rollspeed','pitchspeed','yawspeed','roll_body','pitch_body','yaw_body','roll','pitch','yaw']
+        
+        if (rads.indexOf(record) >= 0){
+          log_data = convertRad(log_data, record);
         }
 
         for (let i = 0; i < log_data.length; i++) {
@@ -308,6 +321,7 @@ const Tree = (function (dispatch, data, dimensions) {
       });
 
     div.append('a')
+      .attr('id', 'pin' + id)
       .style('float', 'right')
       .style('color', function () {
         if (spec.pinned === true) {
@@ -447,6 +461,14 @@ const Tree = (function (dispatch, data, dimensions) {
     let bisect = d3.bisector(function (d) {
       return d[xVal];
     }).left;
+    
+      var focusText = lineChart
+      .append('g')
+      .append('text')
+      .style("opacity", 0)
+      .attr("text-anchor", "left")
+      .attr("alignment-baseline", "middle")
+      .style("z-index", 3)
 
 
     var focus = lineChart
@@ -472,6 +494,7 @@ const Tree = (function (dispatch, data, dimensions) {
 
     function mouseover() {
       focus.style("opacity", 0.5)
+      focusText.style("opacity", 1)
     }
 
     function mousemove() {
@@ -485,11 +508,24 @@ const Tree = (function (dispatch, data, dimensions) {
 
       dispatch.call('unhover', this)
       dispatch.call('hover', this, selectedData[xVal] / 10000000, chartNo)
+      
+       focusText
+        .html(Math.round(selectedData[yVal] * 100) / 100 + ": " + Math.round(selectedData[xVal] / 10000000) + "s")
+        .attr("x", function () {
+          if( width + x(selectedData[xVal] / 10000000) - width < width - 150){
+            return width + x(selectedData[xVal] / 10000000) - width + 20
+          } else {
+            return width + x(selectedData[xVal] / 10000000) - width - 120
+          }
+        })
+        .attr("y", height - y(selectedData[yVal]))
+
 
     }
 
     function mouseout() {
       focus.style("opacity", 0)
+      focusText.style("opacity", 0)
       dispatch.call('unhover', this)
     }
 

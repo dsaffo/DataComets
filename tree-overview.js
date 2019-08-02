@@ -13,140 +13,238 @@ const Overview = (function (dispatch, data, dimensions) {
 
 
   color4 = "#F95E3F"
-  
-  color5= '#F7AC40'
 
-  const default_charts = [{
+  color5 = '#F7AC40'
 
-      data: data['vehicle_gps_position'],
-      log: 'vehicle_gps_position',
-      x: 'timestamp',
-      y: 'alt',
-      title: 'Altitude Recorded (Meters)',
-      unit: 'millimeters',
-      color: color1
+
+  const multicharts = [
+    [{
+
+        data: data['vehicle_gps_position'],
+        log: 'vehicle_gps_position',
+        x: 'timestamp',
+        y: 'alt',
+        title: 'Altitude Recorded (Meters)',
+        unit: 'millimeters',
+        color: color1
   },
-    {
-      data: data['vehicle_global_position'],
-      log: 'vehicle_global_position',
-      x: 'timestamp',
-      y: 'alt',
-      title: 'Altitude Estimated (Meters)',
-      color: color2
-    },
-    {
+      {
+        data: data['vehicle_global_position'],
+        log: 'vehicle_global_position',
+        x: 'timestamp',
+        y: 'alt',
+        title: 'Altitude Estimated (Meters)',
+        color: color5
+    }],
+                       [{
       data: data['position_setpoint_triplet'],
       log: 'position_setpoint_triplet',
       x: 'timestamp',
       y: 'current.alt',
       title: 'Altitude Set Points (Meters)',
-      color: color3
-    },
-    {
+      color: color2
+    }],
+    [{
       data: data['vehicle_air_data'],
       log: 'vehicle_air_data',
       x: 'timestamp',
       y: 'baro_alt_meter',
       title: 'Barometer Altitude (Meters)',
-      color: color4
+      color: color3
+    }],
+                       [{
+        data: data['vehicle_attitude'],
+        log: 'vehicle_attitude',
+        x: 'timestamp',
+        y: 'q[0]',
+        title: 'Roll Angle Estimated (Degs)',
+        color: color1,
+        unit: 'quantrinoin'
     },
-
-    {
+      {
+        data: data['vehicle_attitude_setpoint'],
+        log: 'vehicle_attitude_setpoint',
+        x: 'timestamp',
+        y: 'q_d[0]',
+        title: 'Roll Angle Setpoint (Degs)',
+        color: color5,
+        unit: 'quantrinoin'
+    }],
+                       [{
+        data: data['vehicle_attitude'],
+        log: 'vehicle_attitude',
+        x: 'timestamp',
+        y: 'q[1]',
+        title: 'Pitch Angle Estimated (Degs)',
+        color: color1,
+        unit: 'quantrinoin'
+    },
+      {
+        data: data['vehicle_attitude_setpoint'],
+        log: 'vehicle_attitude_setpoint',
+        x: 'timestamp',
+        y: 'q_d[1]',
+        title: 'Pitch Angle Setpoint (Degs)',
+        color: color5,
+        unit: 'quantrinoin'
+    }],
+                       [{
+      data: data['vehicle_attitude'],
+      log: 'vehicle_attitude',
+      x: 'timestamp',
+      y: 'q[2]',
+      title: 'Yaw Angle Estimated (Degs)',
+      color: color1,
+      unit: 'quantrinoin'
+    }, 
+                        {
+      data: data['vehicle_attitude_setpoint'],
+      log: 'vehicle_attitude_setpoint',
+      x: 'timestamp',
+      y: 'q_d[2]',
+      title: 'Yaw Angle Setpoint (Degs)',
+      color: color5,
+      unit: 'quantrinoin'
+    }],
+                       [{
+      data: data['vehicle_attitude'],
+      log: 'vehicle_attitude',
+      x: 'timestamp',
+      y: 'rollspeed',
+      title: 'Roll Anguler Rate Estimated (Degs/s)',
+      color: color1,
+      unit: 'quantrinoin'
+    }, 
+                        {
+      data: data['vehicle_rates_setpoint'],
+      log: 'vehicle_rates_setpoint',
+      x: 'timestamp',
+      y: 'roll',
+      title: 'Roll Angular Rate Setpoint (Degs/s)',
+      color: color5,
+      unit: 'quantrinoin'
+    }], 
+                       [{
+      data: data['vehicle_attitude'],
+      log: 'vehicle_attitude',
+      x: 'timestamp',
+      y: 'pitchspeed',
+      title: 'Pitch Angular Rate Estimated (Degs/s)',
+      color: color1,
+      unit: 'quantrinoin'
+    },
+                        {
+      data: data['vehicle_rates_setpoint'],
+      log: 'vehicle_rates_setpoint',
+      x: 'timestamp',
+      y: 'pitch',
+      title: 'Pitch Angular Rate Setpoint (Degs/s)',
+      color: color5,
+      unit: 'quantrinoin'
+    }],
+                       [{
+      data: data['vehicle_attitude'],
+      log: 'vehicle_attitude',
+      x: 'timestamp',
+      y: 'yawspeed',
+      title: 'Yaw Angular Rate Estimated (Degs/s)',
+      color: color1,
+      unit: 'quantrinoin'
+    }, {
+      data: data['vehicle_rates_setpoint'],
+      log: 'vehicle_rates_setpoint',
+      x: 'timestamp',
+      y: 'yaw',
+      title: 'Yaw Angular Rate Setpoint (Degs/s)',
+      color: color5,
+      unit: 'quantrinoin'
+    }], [{
       data: data['actuator_controls_0'],
       log: 'actuator_controls_0',
       x: 'timestamp',
       y: 'control[3]',
-      title: 'Thrust (0=no thrust - 1=max thrust)'
-    },
-    {
+      title: 'Thrust Control (0=no thrust - 1=max thrust)',
+      color: color2
+    }],
+    [{
       data: data['actuator_controls_0'],
       log: 'actuator_controls_0',
       x: 'timestamp',
       y: 'control[0]',
-      title: 'Roll (-1 - 1)'
-    },
-    {
+      title: 'Roll Control (-1 - 1)',
+      color: color3
+    }],
+    [{
       data: data['actuator_controls_0'],
       log: 'actuator_controls_0',
       x: 'timestamp',
       y: 'control[1]',
-      title: 'Pitch (-1 - 1)'
-    },
-    {
+      title: 'Pitch Control (-1 - 1)',
+      color: color4
+    }],
+    [{
       data: data['actuator_controls_0'],
       log: 'actuator_controls_0',
       x: 'timestamp',
       y: 'control[2]',
-      title: 'Yaw (-1 - 1)'
-    },
-    {
+      title: 'Yaw Control (-1 - 1)',
+      color: color5
+    }],
+    [{
       data: data['vehicle_gps_position'],
       log: 'vehicle_gps_position',
       x: 'timestamp',
       y: 'vel_m_s',
-      title: 'Velocity (Meters/second)'
-    },
-    {
+      title: 'Velocity (Meters/second)',
+      color: color1
+    }],
+    [{
       data: data['battery_status'],
       log: 'battery_status',
       x: 'timestamp',
       y: 'remaining',
-      title: 'Battery Remaining (0=Empty - 1=Full)'
-    },
-    {
+      title: 'Battery Remaining (0=Empty - 1=Full)',
+      color: color2
+    }],
+    [{
       data: data['battery_status'],
       log: 'battery_status',
       x: 'timestamp',
       y: 'current_filtered_a',
-      title: 'Battery Current (Amps)'
-    },
-    {
+      title: 'Battery Current (Amps)',
+      color: color3
+    }],
+    [{
       data: data['battery_status'],
       log: 'battery_status',
       x: 'timestamp',
       y: 'discharged_mah',
-      title: 'Battery Discharged (Milliamp Hours)'
-    },
-    {
+      title: 'Battery Discharged (Milliamp Hours)',
+      color: color4
+    }],
+    [{
       data: data['vehicle_gps_position'],
       log: 'vehicle_gps_position',
       x: 'timestamp',
       y: 'noise_per_ms',
-      title: 'Noise (Per Meters/second)'
-    },
-    {
+      title: 'Noise (Per Meters/second)',
+      color: color5
+    }],
+    [{
       data: data['vehicle_gps_position'],
       log: 'vehicle_gps_position',
       x: 'timestamp',
       y: 'jamming_indicator',
-      title: 'Jamming Indicator'
-    },
-    {
+      title: 'Jamming Indicator',
+      color: color1
+    }],
+    [{
       data: data['cpuload'],
       log: 'cpuload',
       x: 'timestamp',
       y: 'load',
-      title: 'CPU Load (0 - 1)'
-    }
-  ]
-
-  const multicharts = [[{
-
-      data: data['vehicle_gps_position'],
-      log: 'vehicle_gps_position',
-      x: 'timestamp',
-      y: 'alt',
-      title: 'Altitude Recorded (Meters)',
-      unit: 'millimeters',
-      color: color1
-  },
-    {
-      data: data['vehicle_global_position'],
-      log: 'vehicle_global_position',
-      x: 'timestamp',
-      y: 'alt',
-      title: 'Altitude Estimated (Meters)',
-      color: color5
+      title: 'CPU Load (0 - 1)',
+      color: color2
     }]]
 
 
@@ -162,9 +260,10 @@ const Overview = (function (dispatch, data, dimensions) {
     pinned: false,
     default: true
   }
+  
 
 
-  for (let i = 0; i <multicharts.length; i++) {
+  for (let i = 0; i < multicharts.length; i++) {
     let starter = overviewChartGen('overview', multicharts[i], defaultPinnedLineChartSpec);
     if (i == 0) dispatch.call('mapped', this, starter);
   }
@@ -172,15 +271,15 @@ const Overview = (function (dispatch, data, dimensions) {
 
   function overviewChartGen(where, what, spec) {
 
+    let chartLedger = [];
+
     color = what[0].color || "#16132E"
 
-    console.log(what)
+    let chartData = what[0].data || what.data
+    let yVal = what[0].y || what.y
+    let xVal = what[0].x || what.x
 
-    let chartData = what[0].data
-    let yVal = what[0].y;
-    let xVal = what[0].x;
-    
-    if (what[0].unit == 'millimeters'){
+    if (what[0].unit == 'millimeters') {
       chartData = convertMillimeters(chartData, yVal);
     }
 
@@ -200,62 +299,71 @@ const Overview = (function (dispatch, data, dimensions) {
       .attr('id', 'card' + id)
       .attr('class', 'card-panel')
 
-    
 
-    div.append('a')
-      .attr('id', 'mapSel' + chartNo)
-      .style('float', 'right')
-      .style('color', 'lightgrey')
-      .append('i')
-      .attr('class', 'mdi mdi-map small')
-      .on('click', function () {
-        dispatch.call('mapped', this, chartInfo)
-      });
 
-    div.append('a')
-      .style('float', 'right')
-      .style('color', function () {
-        if (spec.pinned === true) {
-          return "#16132E"
-        } else {
-          return "lightgrey"
-        }
-      })
-      .attr('class', function () {
-        if (spec.pinned === true) {
-          return "on"
-        } else {
-          return "off"
-        }
-      })
-      .on('click', function () {
-        if (d3.select(this)["_groups"][0][0]['classList'][0] === "off") {
-          dispatch.call('pinned', this, spec, what, id)
-        } else if (d3.select(this)["_groups"][0][0]['classList'][0] === "on") {
-          console.log('onclick')
-          dispatch.call('unpinned', this, spec, id)
-        }
-      })
-      .append('i')
-      .attr('class', "mdi mdi-pin small")
-    
-    for (let i = 0; i < what.length; i++){
 
-    var title = div.append("span")
-      .attr("x", margin.right + margin.left + 10)
-      .attr("y", margin.top - 5)
-      .attr("text-anchor", "left")
-      .style("font-size", "14px")
-      .text(function () {
-        if (what[i].title != undefined) {
-          return what[i].title
-        } else {
-          return what[i].y
-        }
 
-      });
-    
-    div.append('br')
+    for (let i = 0; i < what.length; i++) {
+      
+      let id = 'chart' + (chartNo + i); 
+
+      var title = div.append("span")
+        .attr("x", margin.right + margin.left + 10)
+        .attr("y", margin.top - 5)
+        .attr("text-anchor", "left")
+        .style('margin-bottom', 100)
+        .text(function () {
+          if (what[i].title != undefined) {
+            return what[i].title
+          } else {
+            return what[i].y
+          }
+
+        }).append("span").attr("id", "focusval" + (chartNo + i));
+
+      div.append('svg').style('margin-left', 5).attr('width', 10).attr('height', 10).append('rect').attr('width', 10).attr('height', 10).attr('fill', what[i].color)
+
+      div.append('a')
+        .attr('id', 'mapSel' + (chartNo + i))
+        .style('float', 'right')
+        .style('color', 'lightgrey')
+        .append('i')
+        .attr('class', 'mdi mdi-map')
+        .style("font-size", "15px")
+        .on('click', function () {
+          console.log(chartLedger)
+          dispatch.call('mapped', this, chartLedger[i])
+        });
+
+      div.append('a')
+        .attr('id', 'pin' + id)
+        .style('float', 'right')
+        .style('color', function () {
+          if (spec.pinned === true) {
+            return "#16132E"
+          } else {
+            return "lightgrey"
+          }
+        })
+        .attr('class', function () {
+          if (spec.pinned === true) {
+            return "on"
+          } else {
+            return "off"
+          }
+        })
+        .on('click', function () {
+          if (d3.select(this)["_groups"][0][0]['classList'][0] === "off") {
+            dispatch.call('pinned', this, spec, what[i], id)
+          } else if (d3.select(this)["_groups"][0][0]['classList'][0] === "on") {
+            dispatch.call('unpinned', this, spec, id)
+          }
+        })
+        .append('i')
+        .attr('class', "mdi mdi-pin")
+        .style("font-size", "15px")
+
+      div.append('br')
     }
 
 
@@ -289,13 +397,6 @@ const Overview = (function (dispatch, data, dimensions) {
         return y(d.y)
       }).curve(d3.curveMonotoneX);
 
-    let lineGen2 = d3.line()
-      .x(function (d) {
-        return d.x
-      })
-      .y(function (d) {
-        return d.y
-      }).curve(d3.curveMonotoneX);
 
 
     let xy = [];
@@ -312,7 +413,7 @@ const Overview = (function (dispatch, data, dimensions) {
 
 
 
-    simple = simplify(xy, 0.01, false);
+    simple = simplify(xy, 0.05, false);
 
 
 
@@ -371,6 +472,7 @@ const Overview = (function (dispatch, data, dimensions) {
       .style("opacity", 0)
       .attr("text-anchor", "left")
       .attr("alignment-baseline", "middle")
+      .style("z-index", 3)
 
     svg
       .append('rect')
@@ -384,7 +486,7 @@ const Overview = (function (dispatch, data, dimensions) {
       .on('mouseout', mouseout);
 
     function mouseover() {
-      focus.style("opacity", 0.5)
+      //focus.style("opacity", 0.5)
       focusText.style("opacity", 1)
     }
 
@@ -398,9 +500,16 @@ const Overview = (function (dispatch, data, dimensions) {
         .attr("y", 0)
 
       focusText
-        .html(selectedData[yVal] + ": " + Math.round(x(selectedData[xVal] / 10000000)) + "s")
-        .attr("x", x(selectedData[xVal] / 10000000) + 20)
-        .attr("y", y(selectedData[yVal]) + 50)
+        .html(Math.round(selectedData[yVal] * 100) / 100 + ": " + Math.round(selectedData[xVal] / 10000000) + "s")
+        .attr("x", function () {
+          if (width + x(selectedData[xVal] / 10000000) - width < width - 150) {
+            return width + x(selectedData[xVal] / 10000000) - width + 20
+          } else {
+            return width + x(selectedData[xVal] / 10000000) - width - 120
+          }
+        })
+        .attr("y", height - y(selectedData[yVal]))
+
 
 
       dispatch.call('unhover', this)
@@ -410,6 +519,7 @@ const Overview = (function (dispatch, data, dimensions) {
 
     function mouseout() {
       focus.style("opacity", 0)
+      focusText.style("opacity", 0)
       dispatch.call('unhover', this)
     }
 
@@ -422,11 +532,11 @@ const Overview = (function (dispatch, data, dimensions) {
       chartNo: chartNo,
       color: color
     }
-
-    dispatch.call('chartCreated', this, chartInfo)
+    chartLedger.push(chartInfo);
+    dispatch.call('chartCreated', this, chartInfo);
 
     for (let i = 1; i < what.length; i++) {
-      
+
       let newChartData = what[i].data;
       let newY = what[i].y;
       let newX = what[i].x;
@@ -442,7 +552,7 @@ const Overview = (function (dispatch, data, dimensions) {
         }).curve(d3.curveMonotoneX);
 
       let xy = [];
-      
+
       for (let i = 0; i < newChartData.length; i++) {
         xy.push({
           x: newChartData[i][newX] / 10000000,
@@ -450,7 +560,7 @@ const Overview = (function (dispatch, data, dimensions) {
         });
       }
 
-      let simple = simplify(xy, 0.01, false);
+      let simple = simplify(xy, 0.05, false);
 
       let x = d3.scaleLinear()
         .domain(d3.extent(simple, function (d) {
@@ -463,30 +573,30 @@ const Overview = (function (dispatch, data, dimensions) {
           return d.y;
         }))
         .range([height - margin.top, 0]);
-      
-      
+
+
       lineChart.append("path")
-      .datum(simple)
-      .attr('class', 'line')
-      .attr('id', newID)
-      .attr("fill", "none")
-      .attr("stroke", what[i].color)
-      .attr("stroke-width", 2)
-      .attr('opacity', 0.8)
-      .attr("d", lineGen)
+        .datum(simple)
+        .attr('class', 'line')
+        .attr('id', newID)
+        .attr("fill", "none")
+        .attr("stroke", what[i].color)
+        .attr("stroke-width", 2)
+        .attr('opacity', 0.8)
+        .attr("d", lineGen)
 
-      
+
       let chartInfo = {
-      id: newID,
-      line: lineGen,
-      axis: x,
-      spec: spec,
-      what: what[i],
-      chartNo: chartNo,
-      color: color
-    }
-
-    dispatch.call('chartCreated', this, chartInfo)
+        id: newID,
+        line: lineGen,
+        axis: x,
+        spec: spec,
+        what: what[i],
+        chartNo: chartNo,
+        color: color
+      }
+      chartLedger.push(chartInfo);
+      dispatch.call('chartCreated', this, chartInfo)
 
     }
 
@@ -494,6 +604,8 @@ const Overview = (function (dispatch, data, dimensions) {
     return chartInfo
 
   }
+
+
 
   dispatch.on('chartCreated.overview', function (chartInfo) {
     chartList.push(chartInfo);

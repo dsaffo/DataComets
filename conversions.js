@@ -25,3 +25,14 @@ function convertMillimeters(data, record){
   
   return newData;
 }
+
+function convertRad(data, record){
+  
+  let newData = data;
+  
+  for (let i = 0; i < data.length; i++){
+    newData[i][record] = data[i][record] * 180 / Math.PI;;
+  }
+  
+  return newData;
+}
