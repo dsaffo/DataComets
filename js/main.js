@@ -38,7 +38,7 @@ topButton.addEventListener('click', function(){
 
 let chartNo = 0
 
-d3.json('data/dataLong.json').then(function (data) {
+d3.json('data/data.json').then(function (data) {
 
 
      function reduceData(value) {
