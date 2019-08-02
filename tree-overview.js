@@ -13,6 +13,8 @@ const Overview = (function (dispatch, data, dimensions) {
 
 
   color4 = "#F95E3F"
+  
+  color5= '#F7AC40'
 
   const default_charts = [{
 
@@ -128,6 +130,25 @@ const Overview = (function (dispatch, data, dimensions) {
     }
   ]
 
+  const multicharts = [[{
+
+      data: data['vehicle_gps_position'],
+      log: 'vehicle_gps_position',
+      x: 'timestamp',
+      y: 'alt',
+      title: 'Altitude Recorded (Meters)',
+      unit: 'millimeters',
+      color: color1
+  },
+    {
+      data: data['vehicle_global_position'],
+      log: 'vehicle_global_position',
+      x: 'timestamp',
+      y: 'alt',
+      title: 'Altitude Estimated (Meters)',
+      color: color5
+    }]]
+
 
   let defaultPinnedLineChartSpec = {
     margin: {
@@ -143,20 +164,25 @@ const Overview = (function (dispatch, data, dimensions) {
   }
 
 
-  for (let i = 0; i < default_charts.length; i++) {
-    let starter = overviewChartGen('overview', default_charts[i], defaultPinnedLineChartSpec);
+  for (let i = 0; i <multicharts.length; i++) {
+    let starter = overviewChartGen('overview', multicharts[i], defaultPinnedLineChartSpec);
     if (i == 0) dispatch.call('mapped', this, starter);
   }
 
+
   function overviewChartGen(where, what, spec) {
 
-    color = what.color || "#16132E"
+    color = what[0].color || "#16132E"
 
+    console.log(what)
 
-
-    let chartData = what.data
-    let yVal = what.y;
-    let xVal = what.x;
+    let chartData = what[0].data
+    let yVal = what[0].y;
+    let xVal = what[0].x;
+    
+    if (what[0].unit == 'millimeters'){
+      chartData = convertMillimeters(chartData, yVal);
+    }
 
     let id = 'chart' + chartNo;
 
@@ -174,19 +200,7 @@ const Overview = (function (dispatch, data, dimensions) {
       .attr('id', 'card' + id)
       .attr('class', 'card-panel')
 
-    var title = div.append("span")
-      .attr("x", margin.right + margin.left + 10)
-      .attr("y", margin.top - 5)
-      .attr("text-anchor", "left")
-      .style("font-size", "14px")
-      .text(function () {
-        if (what.title != undefined) {
-          return what.title
-        } else {
-          return yVal
-        }
-        
-      });
+    
 
     div.append('a')
       .attr('id', 'mapSel' + chartNo)
@@ -224,8 +238,25 @@ const Overview = (function (dispatch, data, dimensions) {
       })
       .append('i')
       .attr('class', "mdi mdi-pin small")
+    
+    for (let i = 0; i < what.length; i++){
 
+    var title = div.append("span")
+      .attr("x", margin.right + margin.left + 10)
+      .attr("y", margin.top - 5)
+      .attr("text-anchor", "left")
+      .style("font-size", "14px")
+      .text(function () {
+        if (what[i].title != undefined) {
+          return what[i].title
+        } else {
+          return what[i].y
+        }
 
+      });
+    
+    div.append('br')
+    }
 
 
     let svg = div.append("svg")
@@ -316,6 +347,7 @@ const Overview = (function (dispatch, data, dimensions) {
       .attr("fill", "none")
       .attr("stroke", color)
       .attr("stroke-width", 2)
+      .attr("opacity", 0.8)
       .attr("d", lineGen)
 
     let bisect = d3.bisector(function (d) {
@@ -332,10 +364,10 @@ const Overview = (function (dispatch, data, dimensions) {
       .attr('height', height)
       .attr('width', 1)
       .style("opacity", 0)
-    
+
     var focusText = lineChart
-    .append('g')
-    .append('text')
+      .append('g')
+      .append('text')
       .style("opacity", 0)
       .attr("text-anchor", "left")
       .attr("alignment-baseline", "middle")
@@ -353,7 +385,7 @@ const Overview = (function (dispatch, data, dimensions) {
 
     function mouseover() {
       focus.style("opacity", 0.5)
-      focusText.style("opacity",1)
+      focusText.style("opacity", 1)
     }
 
     function mousemove() {
@@ -364,12 +396,12 @@ const Overview = (function (dispatch, data, dimensions) {
       selectedData = chartData[i]
       focus.attr("x", x(selectedData[xVal] / 10000000))
         .attr("y", 0)
-      
-    focusText
-      .html(selectedData[yVal] + ": " + Math.round(x(selectedData[xVal] / 10000000)) + "s")
-      .attr("x", x(selectedData[xVal] / 10000000) + 20)
-      .attr("y", y(selectedData[yVal]) + 50)
-    
+
+      focusText
+        .html(selectedData[yVal] + ": " + Math.round(x(selectedData[xVal] / 10000000)) + "s")
+        .attr("x", x(selectedData[xVal] / 10000000) + 20)
+        .attr("y", y(selectedData[yVal]) + 50)
+
 
       dispatch.call('unhover', this)
       dispatch.call('hover', this, selectedData[xVal] / 10000000, chartNo)
@@ -386,13 +418,77 @@ const Overview = (function (dispatch, data, dimensions) {
       line: lineGen,
       axis: x,
       spec: spec,
-      what: what,
+      what: what[0],
       chartNo: chartNo,
       color: color
     }
 
     dispatch.call('chartCreated', this, chartInfo)
 
+    for (let i = 1; i < what.length; i++) {
+      
+      let newChartData = what[i].data;
+      let newY = what[i].y;
+      let newX = what[i].x;
+
+      let newID = 'chart' + chartNo;
+
+      let lineGen = d3.line()
+        .x(function (d) {
+          return x(d.x)
+        })
+        .y(function (d) {
+          return y(d.y)
+        }).curve(d3.curveMonotoneX);
+
+      let xy = [];
+      
+      for (let i = 0; i < newChartData.length; i++) {
+        xy.push({
+          x: newChartData[i][newX] / 10000000,
+          y: newChartData[i][newY]
+        });
+      }
+
+      let simple = simplify(xy, 0.01, false);
+
+      let x = d3.scaleLinear()
+        .domain(d3.extent(simple, function (d) {
+          return d.x;
+        }))
+        .range([0, width - margin.right]);
+
+      let y = d3.scaleLinear()
+        .domain(d3.extent(simple, function (d) {
+          return d.y;
+        }))
+        .range([height - margin.top, 0]);
+      
+      
+      lineChart.append("path")
+      .datum(simple)
+      .attr('class', 'line')
+      .attr('id', newID)
+      .attr("fill", "none")
+      .attr("stroke", what[i].color)
+      .attr("stroke-width", 2)
+      .attr('opacity', 0.8)
+      .attr("d", lineGen)
+
+      
+      let chartInfo = {
+      id: newID,
+      line: lineGen,
+      axis: x,
+      spec: spec,
+      what: what[i],
+      chartNo: chartNo,
+      color: color
+    }
+
+    dispatch.call('chartCreated', this, chartInfo)
+
+    }
 
 
     return chartInfo
