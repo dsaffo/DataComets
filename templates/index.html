@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+
+<html style="height: 100%; width: 100%">
+
+<head>
+
+  <title>Data Comets</title>
+  <link rel="icon" type="image/png" href="static/favicon.ico">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta charset="utf-8" />
+
+  <!-- leaflet -->
+  <script src="{{ url_for('static', filename="leaflet/leaflet.js")}}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename="leaflet/leaflet.css")}}">
+
+  <!-- jQuery -->
+  <script src="{{ url_for('static', filename="jquery/jQuery.js")}}"></script>
+
+  <!-- Materialize-->
+  <script src="{{ url_for('static', filename="materialize/js/materialize.js")}}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename="materialize/css/materialize.css")}}">
+  <link rel="stylesheet" href="{{ url_for('static', filename="icons/css/materialdesignicons.min.css")}}">
+
+  <!-- D3 -->
+  <script src="{{ url_for('static', filename="d3/d3.min.js")}}"></script>
+
+  <!-- Style -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename="css/style.css")}}">
+
+</head>
+
+<body style=" height: 100%; margin: 0; padding: 0 ">
+
+  <svg id="curtain" width="100%" height="100%" style="background: #FAFAFA"></svg>
+
+  <div id="m1" class="modal modal-fixed-footer">
+    <div class="modal-content">
+      <form id='uploadForm'>
+        <div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" ondragleave="dragOutHandler(event);">
+          <input id='file' type="file" name="file" autocomplete="off" accept=".ULG" required>
+          <img height="60%" width="auto" src="/static/imgs/DataCometsLogo.png">
+          <h5>Drag Or Select ULog To Get Started</h5>
+          <span>Or take Data Comets for a spin with this <a href="javascript:void(0);" onclick="loadDemo(event);">log</a></span>
+          <h6 style="margin-top: -1px;" id="loadingText"></h6>
+          <img id="loadingSpinner" style="margin-top: -20px; display: none" height="40px" src='static/imgs/spinner.gif'>
+        </div>
+      </form>
+      <br>
+      <h3>Data Comets</h3>
+      <h5>Interactive PX4 Flight Log Analysis Tool</h5>
+      <hr>
+
+
+    </div>
+    <div class="modal-footer"></div>
+
+  </div>
+
+  <div id="infoModal" class="modal modal-fixed-footer">
+    <div class="modal-content">
+    </div>
+    <div class="modal-footer"></div>
+  </div>
+
+
+  <ul id="slide-out" class="sidenav">
+
+    <li>
+      <div class="divider"></div>
+    </li>
+    <li><a class="subheader">Map Controls</a></li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input checked id='gpsRecordedSwitch' type="checkbox">
+          <span class="lever"></span>
+          GPS Positions Recorded
+        </label>
+      </div>
+    </li>
+
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='gpsEstimatedSwitch' type="checkbox">
+          <span class="lever"></span>
+          GPS Positions Estimated
+        </label>
+      </div>
+    </li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='setPointSwitch' type="checkbox">
+          <span class="lever"></span>
+          Position Set Points
+        </label>
+      </div>
+    </li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='ghostSwitch' type="checkbox">
+          <span class="lever"></span>
+          Ghost Path
+        </label>
+      </div>
+    </li>
+    <!--<li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='widthSwitch' type="checkbox">
+          <span class="lever"></span>
+          Width Encoding
+        </label>
+      </div>
+    </li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='colorSwitch' type="checkbox">
+          <span class="lever"></span>
+          Color Scale Range
+        </label>
+      </div>
+    </li>-->
+
+  </ul>
+
+
+  <div id="map-canvas" style="position: relative; z-index: 1; width:70%; height: 90%; float: left">
+
+    <a style="position: relative; z-index: 2; float: left; margin-top: 10px; margin-left: 10px; color: white" href="#" data-target="slide-out" class="sidenav-trigger">
+      <i class="mdi mdi-settings small"></i></a>
+
+    <a style="position: relative; z-index: 2; float: right; margin-top: 10px; margin-right: 10px; color: white" class="modal-trigger" href="#infoModal">
+      <i class="mdi mdi-information-outline small"></i></a>
+
+  </div>
+  <div id='timeline-container' style="height: 10%; width: 70%; bottom: 0px; position: absolute;"> </div>
+
+
+  <div id='tree-container' style="width: 30%; height: 100%; overflow: auto; float: right;">
+    <div class="navbar-fixed">
+      <nav class="nav-extended" style="width: 30%">
+        <div class="nav-wrapper">
+          <!-- <form class="left" style="width: 60%; height: 64px">
+            <div class="input-field">
+              <input id="search" type="search" required>
+              <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+              <i class="material-icons">close</i>
+            </div>
+          </form> -->
+          <ul class="right">
+            <li><a id="top"><i class="mdi mdi-arrow-up"></i></a></li>
+            <!--<li><a><i class="material-icons">unfold_less</i></a></li>-->
+            <li><a id="uploadModal" class="modal-trigger" href="#m1"><i class="mdi mdi-file-upload"></i></a></li>
+          </ul>
+        </div>
+        <div class="nav-content">
+          <ul id='tabs' class="tabs tabs-transparent tabs-fixed-width">
+            <li class="tab" id='startTab'><a class="active" href="#overview">Overview</a></li>
+            <li class="tab"><a href="#pinned">Pinned</a></li>
+            <li class="tab"><a href="#all">All</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <div style="margin-top: 49px; margin-left: 0px">
+      <div id="all" style="display: block">
+        <ul class="collapsible expandable" id="tree"></ul>
+      </div>
+      <div id='pinned' class="collapsible" style="width 100%; height: 100%; display: block;"></div>
+      <div id='overview' class="collapsible" style="width 100%; height: 100%; display: block;"></div>
+    </div>
+  </div>
+
+  <div id='test'></div>
+</body>
+
+
+
+<script src="{{ url_for('static', filename="js/simplfy.js")}}"></script>
+
+<script src="{{ url_for('static', filename="js/main.js")}}"></script>
+
+<script src="{{ url_for('static', filename="js/map.js")}}"></script>
+
+<script src="{{ url_for('static', filename="js/timeline.js")}}"></script>
+
+<script src="{{ url_for('static', filename="js/conversions.js")}}"></script>
+
+<script src="{{ url_for('static', filename="js/tree.js")}}"></script>
+
+<script src="{{ url_for('static', filename="js/tree-overview.js")}}"></script>
+
+<script src="{{ url_for('static', filename="js/quat-euler.js")}}"></script>
