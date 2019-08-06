@@ -29,9 +29,14 @@ def parse():
         else:
             jsons = jsons + "\"" + data[d].name + "\":" + js 
     jsons = jsons + "}"
-    result =  jsonify(jsons)
+    response = app.response_class(
+        response=json.dumps(jsons),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
     #return render_template('index.html', result = result)
-    return result
+    #return result
 
 @app.route('/')
 def webpage():
