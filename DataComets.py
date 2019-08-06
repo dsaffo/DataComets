@@ -1,6 +1,5 @@
 from flask import Flask, jsonify, request, send_file, render_template
 import pandas as pd
-import numpy as np
 import pyulog
 from pyulog.ulog2csv import *
 import json
