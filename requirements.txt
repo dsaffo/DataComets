@@ -31,9 +31,6 @@ kiwisolver==1.1.0
 MarkupSafe==1.1.1
 matplotlib==3.0.3
 monotonic==1.5
-# Editable install with no version control (netrd==0.1.0)
--e c:\users\david saffo\appdata\local\programs\python\python37\lib\site-packages
-netrdexplorer==0.1.0
 networkx==2.3
 numpy==1.16.3
 numpydoc==0.9.1
