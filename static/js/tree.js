@@ -407,8 +407,8 @@ const Tree = (function (dispatch, data, dimensions) {
     
     tol = standardDeviation(yvals);
     
-    if (tol >= 1){
-      tol = 0.05;
+    if (tol >= 0.1){
+      tol = 0.1;
     } 
     
     //console.log(yVal, tol);
