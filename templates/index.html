@@ -26,8 +26,8 @@
   <script src="{{ url_for('static', filename="d3/d3.min.js")}}"></script>
 
   <script src="{{ url_for('static', filename="js/pako.js")}}"></script>
-  
-    <script src="{{ url_for('static', filename="jszip/dist/jszip.js")}}"></script>
+
+  <script src="{{ url_for('static', filename="jszip/dist/jszip.js")}}"></script>
 
   <!-- Style -->
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename="css/style.css")}}">
@@ -45,7 +45,8 @@
     gtag('config', 'UA-145274579-1');
 
   </script>
-
+  <!-- Place this tag in your head or just before your close body tag. -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
 
 </head>
 
@@ -65,14 +66,21 @@
           <img id="loadingSpinner" style="margin-top: -20px; display: none" height="40px" src='static/imgs/spinner.gif'>
         </div>
       </form>
-      <br>
       <h3>Data Comets</h3>
       <h5>Interactive PX4 Flight Log Analysis Tool</h5>
       <hr>
-
-
+      <video width="100%" height="auto" controls loop autoplay>
+        <source src="{{ url_for('static', filename="imgs/DataCometsWalkThrough.mp4")}}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
     </div>
-    <div class="modal-footer"></div>
+    <div class="modal-footer">
+
+      <a class="github-button" href="https://github.com/dsaffo/DataComets" data-size="large" data-show-count="true" aria-label="Get Local Version">Get Local Version</a>
+      <a class="github-button" href="https://github.com/dsaffo/DataComets" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star dsaffo/DataComets on GitHub">Star</a>
+      <a class="github-button" href="https://github.com/dsaffo/DataComets/issues" data-icon="octicon-issue-opened" data-size="large" aria-label="Issue dsaffo/DataComets on GitHub">Issue</a>
+       <a class="github-button" href="https://github.com/dsaffo" data-size="large" data-show-count="true" aria-label="Follow @dsaffo on GitHub">Follow @dsaffo</a>
+    </div>
 
   </div>
 
@@ -153,8 +161,8 @@
     <a style="position: relative; z-index: 2; float: left; margin-top: 10px; margin-left: 10px; color: white" href="#" data-target="slide-out" class="sidenav-trigger">
       <i class="mdi mdi-settings small"></i></a>
 
-    <a style="position: relative; z-index: 2; float: right; margin-top: 10px; margin-right: 10px; color: white" class="modal-trigger" href="#infoModal">
-      <i class="mdi mdi-information-outline small"></i></a>
+    <!--<a style="position: relative; z-index: 2; float: right; margin-top: 10px; margin-right: 10px; color: white" class="modal-trigger" href="#infoModal">
+      <i class="mdi mdi-information-outline small"></i></a>-->
 
   </div>
   <div id='timeline-container' style="height: 10%; width: 70%; bottom: 0px; position: absolute;"> </div>

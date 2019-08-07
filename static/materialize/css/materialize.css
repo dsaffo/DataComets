@@ -5755,7 +5755,7 @@ body.keyboard-focused .dropdown-content li:focus {
   right: 0;
   background-color: #fafafa;
   padding: 0;
-  max-height: 70%;
+  max-height: 100%;
   width: 55%;
   margin: auto;
   overflow-y: auto;
@@ -5801,7 +5801,7 @@ body.keyboard-focused .dropdown-content li:focus {
 .modal-overlay {
   position: fixed;
   z-index: 999;
-  top: -25%;
+  top: 0;
   left: 0;
   bottom: 0;
   right: 0;
@@ -5814,7 +5814,7 @@ body.keyboard-focused .dropdown-content li:focus {
 
 .modal.modal-fixed-footer {
   padding: 0;
-  height: 70%;
+  height: 80%;
 }
 
 .modal.modal-fixed-footer .modal-content {
