@@ -3,9 +3,10 @@ import pandas as pd
 import pyulog
 from pyulog.ulog2csv import *
 import json
+from flask_compress import Compress
 
 app = Flask(__name__)
-
+Compress(app)
 
 
 @app.route('/parse', methods=['POST'])
@@ -29,13 +30,19 @@ def parse():
         else:
             jsons = jsons + "\"" + data[d].name + "\":" + js 
     jsons = jsons + "}"
-    result =  jsonify(jsons)
+    jsons = json.dumps(jsons)
+    response = app.response_class(
+        response= jsons,
+        status=200,
+        mimetype='application/json'
+    )
     #return render_template('index.html', result = result)
-    return result
+    return response
 
 @app.route('/')
 def webpage():
     return render_template('index.html')
 
 if __name__ == '__main__':
+    app.run()
     app.run()
