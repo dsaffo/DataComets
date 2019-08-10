@@ -15,11 +15,14 @@ python DataCometsLocal.py
 <h2 id="features">Features</h2>
 <p  align="center"><img width="48%" height="auto" src="https://media.giphy.com/media/L0Z7bjfOQh3NXRiKL5/giphy.gif" alt="enter image description here">  
 <img width="48%" height="auto" src="https://media.giphy.com/media/LlDxytpwGRrW7PMHHY/giphy.gif" alt="enter image description here"> </p>
- <p> asdasdasdasd </p>  </p>
+ <p>The map shows the recorded flight path, you can also encode the estimated flight path and set points from the settings menu that you can access with the gear icon at the top left of the map</p>
+ <p>The flight path uses color to encode any data selected from the flight log. Select data such as altitude, velocity, or jamming to see where data was recorded or expected not just when. You can change the selected data by clicking the map icon found on each line chart </p>
+ </p>
  <p  align="center"> 
 <img width="48%" height="auto" src="https://media.giphy.com/media/Y4ypbcZNPLJh351dIk/giphy.gif" alt="enter image description here">
-<img width="48%" height="auto" src="https://media.giphy.com/media/iDmwOAViweRtseACcW/giphy.gif" alt="enter image description here">
-   <p> asdasdasdasd </p>
+<img width="48%" height="auto" src="https://media.giphy.com/media/iDmwOAViweRtseACcW/giphy.gif" alt="enter image description here"></p>
+   <p>You can prowse all the data in the log using the line chart tree. The overview tab show a highlevel view of some important charts similar to the charts found on the flight review tool. You can look through all the data from the flight in the all tab where the data is orgainzed into a drop down tree by the message file they belong to. You can pin data you want to compare or get a closer look at with the pin icon found on every linechart. Pinned data will apear in the pin tab.</p>
+ <p>Data Comets is fully interactive! Brush the timeline at the bottom to filter the amount of time shown. Use this to reduce visual cluter on longer complex flight paths, or to drill down into certain trouble areas of a flight. The line charts will update to show the time windo selected. You can also use the brushing window to play back the flight by scrubing the window as you please. All the charts are linked! Hover over the line charts or map to see that position on the other charts.</p>
   </p>
 
 
