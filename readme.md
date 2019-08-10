@@ -13,11 +13,13 @@ python DataCometsLocal.py
 </code></pre>
 <p>Data Comets will then run on your local host and can be accessed by going to <strong><a href="http://localhost:5000/">http://localhost:5000/</a></strong> with your browser.</p>
 <h2 id="features">Features</h2>
-<p><img width="45%" height="auto" src="https://media.giphy.com/media/L0Z7bjfOQh3NXRiKL5/giphy.gif" alt="enter image description here">
-<img width="45%" height="auto" src="https://media.giphy.com/media/LlDxytpwGRrW7PMHHY/giphy.gif" alt="enter image description here"> <br>
+<p><img width="50%" height="auto" src="https://media.giphy.com/media/L0Z7bjfOQh3NXRiKL5/giphy.gif" alt="enter image description here">
+<img width="50%" height="auto" src="https://media.giphy.com/media/LlDxytpwGRrW7PMHHY/giphy.gif" alt="enter image description here"> 
   <p> asdasdasdasd </p>
-<img width="45%" height="auto" src="https://media.giphy.com/media/Y4ypbcZNPLJh351dIk/giphy.gif" alt="enter image description here">
-<img width="45%" height="auto" src="https://media.giphy.com/media/iDmwOAViweRtseACcW/giphy.gif" alt="enter image description here"></p>
+<img width="50%" height="auto" src="https://media.giphy.com/media/Y4ypbcZNPLJh351dIk/giphy.gif" alt="enter image description here">
+<img width="50%" height="auto" src="https://media.giphy.com/media/iDmwOAViweRtseACcW/giphy.gif" alt="enter image description here">
+ <p> asdasdasdasd </p>
+</p>
 <h1 id="contributing">Contributing</h1>
 <p>Interested in contributing? Even just <strong>giving your feedback</strong> is a huge help! Below are a few of the ways anyone can help contribute to this project.</p>
 <ol>
