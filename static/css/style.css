@@ -52,7 +52,7 @@ div.tooltip {
   border: 3px solid rgba(22, 19, 46, 0.9);
   border-radius: 2px;
   width:  auto;
-  height: 300px;
+  height: 50%;
   text-align: center;
   padding: 30px
 }
