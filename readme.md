@@ -3,6 +3,7 @@
 <br>
 <p>
 Data Comets is a <strong>interactive PX4 flight log analysis tool</strong>. With Data Comets you can encode flight data onto the flight path, filter and brush the data by time, and much more! Data Comets was designed and is in development as a part of a information visualization design study from the Visualization Lab @ Northeastern University’s Khoury College of Computer Sciences. The tool is ready to be used but the project and the research is <strong>ongoing and seeking user feedback</strong>. Learn how you can help Data Comets and our design study in the <strong>contributing section</strong> below.</p>
+<strong>discussion forum post: </strong><a href="https://discuss.px4.io/t/data-comets-a-new-flight-log-analysis-tool/12400">https://discuss.px4.io/t/data-comets-a-new-flight-log-analysis-tool/12400</a>
 <h1 id="using-data-comets">Using Data Comets</h1>
 <h2 id="hosted-version">Hosted Version</h2>
 <p>To try out Data Comets for yourself you can visit <a href="https://www.datacomets.com">datacomets.com</a>. The hosted version is limited to logs smaller than <strong>32mb</strong>. For larger logs and better performance/load times please use the local version. Uploaded logs are not saved once they are parsed and displayed. Refreshing the page will delete the log data from your browser as well.</p>
