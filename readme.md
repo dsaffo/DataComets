@@ -9,7 +9,7 @@ Data Comets is a <strong>interactive PX4 flight log analysis tool</strong>. With
 <p>To try out Data Comets for yourself you can visit <a href="https://www.datacomets.com">datacomets.com</a>. The hosted version is limited to logs smaller than <strong>32mb</strong>. For larger logs and better performance/load times please use the local version. Uploaded logs are not saved once they are parsed and displayed. Refreshing the page will delete the log data from your browser as well.</p>
 <h2 id="local-version">Local Version</h2>
 <p>You can use Data Comets locally with python 3. Clone or download this repo, then using the terminal run the following commands in the directory.</p>
-<pre><code>pip install -r requirments.txt
+<pre><code>pip install -r requirements.txt
 python DataCometsLocal.py
 </code></pre>
 <p>Data Comets will then run on your local host and should open automatically or it can be accessed by going to <strong><a href="http://localhost:5000/">http://localhost:5000/</a></strong> with your browser.</p>
