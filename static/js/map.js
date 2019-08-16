@@ -34,13 +34,16 @@ const Map = (function (dispatch, data, dimensions) {
     Map Initialization 
   */
 
- 
-  try{
-  if (map != undefined) {
-    console.log('remove map');
+
+  try {
+    if (map != undefined) {
+      console.log('remove map');
       map.remove();
-  }} catch { console.log('no map')}
-  
+    }
+  } catch {
+    console.log('no map')
+  }
+
   let refLon = data['vehicle_local_position'][0]['ref_lon'];
   let refLat = data['vehicle_local_position'][0]['ref_lat'];
 
@@ -210,6 +213,7 @@ const Map = (function (dispatch, data, dimensions) {
     if (pathTimes.length === attrTimes.length) {
       return attrData;
     } else if (pathTimes.length > attrTimes.length) {
+      
       dataIndex = 0;
       for (let i = 0; i < pathTimes.length; i++) {
         if (pathTimes[i] <= attrTimes[dataIndex]) {
@@ -221,6 +225,7 @@ const Map = (function (dispatch, data, dimensions) {
       }
       return alignedData;
     } else if (pathTimes.length < attrTimes.length) {
+      
       dataIndex = 0;
       passed = 0;
       for (let i = 0; i < pathTimes.length; i++) {
@@ -377,8 +382,14 @@ const Map = (function (dispatch, data, dimensions) {
     //  return parseFloat(d[value]);
     //});
 
-    max = Math.max(...data)
-    min = Math.min(...data)
+    var filtered = data.filter(function (el) {
+      return el != undefined;
+    });
+
+    max = Math.max(...filtered)
+    min = Math.min(...filtered)
+
+ 
 
     const d = (max - min) / 30;
 
