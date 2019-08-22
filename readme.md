@@ -1,5 +1,5 @@
 <h1 id="welcome-to-data-comets">Welcome to Data Comets</h1>
-<h3><a href="https://forms.gle/5BBUH4Fk6dK6FN499" target="_blank">Help us imporve Data Comets with this short survey!</a></h3>
+<h3><a href="https://forms.gle/5BBUH4Fk6dK6FN499" target="_blank">Help us improve Data Comets with this short survey!</a></h3>
 <p align="center"><img src="https://i.imgur.com/7oK0a5G.png" alt=""><img src="https://media.giphy.com/media/ZE6LoNdnVgrxBjwmLj/giphy.gif" alt=""></p>
 <br>
 <p>
