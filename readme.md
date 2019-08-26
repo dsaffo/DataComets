@@ -9,6 +9,7 @@ Data Comets is a <strong>interactive PX4 flight log analysis tool</strong>. With
 ### Short Term Change Log:
 v1.0.2 8/26/2019
 FIXED: Overview tab will no longer break when it can't find the data it is trying to plot.
+
 v1.0.1 8/16/2019
 FIXED: Color map not generating correctly for some attributes with undifned values. Data such as roll setpoints should encode correctly on the flight path now. 
 
