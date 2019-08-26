@@ -89,58 +89,58 @@ const Overview = (function (dispatch, data, dimensions) {
         unit: 'quantrinoin'
     }],
                        [{
-      data: data['vehicle_attitude'],
-      log: 'vehicle_attitude',
-      x: 'timestamp',
-      y: 'q[2]',
-      title: 'Yaw Angle Estimated (Degs)',
-      color: color1,
-      unit: 'quantrinoin'
-    }, 
-                        {
-      data: data['vehicle_attitude_setpoint'],
-      log: 'vehicle_attitude_setpoint',
-      x: 'timestamp',
-      y: 'q_d[2]',
-      title: 'Yaw Angle Setpoint (Degs)',
-      color: color5,
-      unit: 'quantrinoin'
+        data: data['vehicle_attitude'],
+        log: 'vehicle_attitude',
+        x: 'timestamp',
+        y: 'q[2]',
+        title: 'Yaw Angle Estimated (Degs)',
+        color: color1,
+        unit: 'quantrinoin'
+    },
+      {
+        data: data['vehicle_attitude_setpoint'],
+        log: 'vehicle_attitude_setpoint',
+        x: 'timestamp',
+        y: 'q_d[2]',
+        title: 'Yaw Angle Setpoint (Degs)',
+        color: color5,
+        unit: 'quantrinoin'
     }],
                        [{
-      data: data['vehicle_attitude'],
-      log: 'vehicle_attitude',
-      x: 'timestamp',
-      y: 'rollspeed',
-      title: 'Roll Anguler Rate Estimated (Degs/s)',
-      color: color1,
-      unit: 'quantrinoin'
-    }, 
-                        {
-      data: data['vehicle_rates_setpoint'],
-      log: 'vehicle_rates_setpoint',
-      x: 'timestamp',
-      y: 'roll',
-      title: 'Roll Angular Rate Setpoint (Degs/s)',
-      color: color5,
-      unit: 'quantrinoin'
-    }], 
-                       [{
-      data: data['vehicle_attitude'],
-      log: 'vehicle_attitude',
-      x: 'timestamp',
-      y: 'pitchspeed',
-      title: 'Pitch Angular Rate Estimated (Degs/s)',
-      color: color1,
-      unit: 'quantrinoin'
+        data: data['vehicle_attitude'],
+        log: 'vehicle_attitude',
+        x: 'timestamp',
+        y: 'rollspeed',
+        title: 'Roll Anguler Rate Estimated (Degs/s)',
+        color: color1,
+        unit: 'quantrinoin'
     },
-                        {
-      data: data['vehicle_rates_setpoint'],
-      log: 'vehicle_rates_setpoint',
-      x: 'timestamp',
-      y: 'pitch',
-      title: 'Pitch Angular Rate Setpoint (Degs/s)',
-      color: color5,
-      unit: 'quantrinoin'
+      {
+        data: data['vehicle_rates_setpoint'],
+        log: 'vehicle_rates_setpoint',
+        x: 'timestamp',
+        y: 'roll',
+        title: 'Roll Angular Rate Setpoint (Degs/s)',
+        color: color5,
+        unit: 'quantrinoin'
+    }],
+                       [{
+        data: data['vehicle_attitude'],
+        log: 'vehicle_attitude',
+        x: 'timestamp',
+        y: 'pitchspeed',
+        title: 'Pitch Angular Rate Estimated (Degs/s)',
+        color: color1,
+        unit: 'quantrinoin'
+    },
+      {
+        data: data['vehicle_rates_setpoint'],
+        log: 'vehicle_rates_setpoint',
+        x: 'timestamp',
+        y: 'pitch',
+        title: 'Pitch Angular Rate Setpoint (Degs/s)',
+        color: color5,
+        unit: 'quantrinoin'
     }],
                        [{
       data: data['vehicle_attitude'],
@@ -260,12 +260,16 @@ const Overview = (function (dispatch, data, dimensions) {
     pinned: false,
     default: true
   }
-  
+
 
 
   for (let i = 0; i < multicharts.length; i++) {
-    let starter = overviewChartGen('overview', multicharts[i], defaultPinnedLineChartSpec);
-    if (i == 0) dispatch.call('mapped', this, starter);
+    try {
+      let starter = overviewChartGen('overview', multicharts[i], defaultPinnedLineChartSpec);
+      if (i == 0) dispatch.call('mapped', this, starter);
+    } catch {
+      console.log('something went wrong with these charts', multicharts[i]);
+    }
   }
 
 
@@ -279,6 +283,11 @@ const Overview = (function (dispatch, data, dimensions) {
     let yVal = what[0].y || what.y
     let xVal = what[0].x || what.x
 
+    if(chartData == undefined){
+      return ""
+    }
+    console.log(chartData)
+    
     if (what[0].unit == 'millimeters') {
       chartData = convertMillimeters(chartData, yVal);
     }
@@ -304,8 +313,8 @@ const Overview = (function (dispatch, data, dimensions) {
 
 
     for (let i = 0; i < what.length; i++) {
-      
-      let id = 'chart' + (chartNo + i); 
+
+      let id = 'chart' + (chartNo + i);
 
       var title = div.append("span")
         .attr("x", margin.right + margin.left + 10)
@@ -327,10 +336,10 @@ const Overview = (function (dispatch, data, dimensions) {
         .attr('id', 'mapSel' + (chartNo + i))
         .style('float', 'right')
         .style('color', 'lightgrey')
-      .style("font-size", "14px")
+        .style("font-size", "14px")
         .append('i')
         .attr('class', 'mdi mdi-map')
-        
+
         .on('click', function () {
           console.log(chartLedger)
           dispatch.call('mapped', this, chartLedger[i])
@@ -360,10 +369,10 @@ const Overview = (function (dispatch, data, dimensions) {
             dispatch.call('unpinned', this, spec, id)
           }
         })
-      .style("font-size", "14px")
+        .style("font-size", "14px")
         .append('i')
         .attr('class', "mdi mdi-pin")
-       
+
 
       div.append('br')
     }
@@ -458,7 +467,7 @@ const Overview = (function (dispatch, data, dimensions) {
     }).left;
 
 
-    
+
 
     svg
       .append('rect')
@@ -585,7 +594,7 @@ const Overview = (function (dispatch, data, dimensions) {
       dispatch.call('chartCreated', this, chartInfo)
 
     }
-    
+
     var focus = lineChart
       .append('g')
       .append('rect')
@@ -602,7 +611,7 @@ const Overview = (function (dispatch, data, dimensions) {
       .style("opacity", 0)
       .attr("text-anchor", "left")
       .attr("alignment-baseline", "middle")
-      
+
 
 
     return chartInfo
