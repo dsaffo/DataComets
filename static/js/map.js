@@ -33,8 +33,8 @@ const Map = (function (dispatch, data, dimensions) {
   /*
     Map Initialization 
   */
-  
-  if (data['vehicle_gps_position'] == undefined){
+
+  if (data['vehicle_gps_position'] == undefined) {
     d3.select('#loadingText').html('No GPS Data, GPS data is currently required');
   }
 
@@ -48,14 +48,21 @@ const Map = (function (dispatch, data, dimensions) {
     console.log('no map')
   }
 
-  let refLon = data['vehicle_local_position'][0]['ref_lon'];
-  let refLat = data['vehicle_local_position'][0]['ref_lat'];
-  
-  if (refLon == undefined || refLat == undefined){
+  try {
+    let refLon = data['vehicle_local_position'][0]['ref_lon'];
+    let refLat = data['vehicle_local_position'][0]['ref_lat'];
+  } catch {
     console.log('no ref lat/lon using back up');
-    refLon = data['vehicle_gps_position'][0]['lon'] / 10000000;
-    refLat = data['vehicle_gps_position'][0]['lat'] / 10000000;
-    console.log(refLon,refLat);
+    let refLon = data['vehicle_gps_position'][0]['lon'] / 10000000;
+    let refLat = data['vehicle_gps_position'][0]['lat'] / 10000000;
+    console.log(refLon, refLat);
+  }
+
+  if (refLon == undefined || refLat == undefined) {
+    console.log('no ref lat/lon using back up');
+    let refLon = data['vehicle_gps_position'][0]['lon'] / 10000000;
+    let refLat = data['vehicle_gps_position'][0]['lat'] / 10000000;
+    console.log(refLon, refLat);
   }
 
   map = L.map("map-canvas", {
@@ -80,7 +87,7 @@ const Map = (function (dispatch, data, dimensions) {
     Code Initialization
   */
 
-  
+
   let selections = {
     window: [0, data['vehicle_gps_position'].length - 3],
     prevWindow: [0, data['vehicle_gps_position'].length - 3],
@@ -225,7 +232,7 @@ const Map = (function (dispatch, data, dimensions) {
     if (pathTimes.length === attrTimes.length) {
       return attrData;
     } else if (pathTimes.length > attrTimes.length) {
-      
+
       dataIndex = 0;
       for (let i = 0; i < pathTimes.length; i++) {
         if (pathTimes[i] <= attrTimes[dataIndex]) {
@@ -237,7 +244,7 @@ const Map = (function (dispatch, data, dimensions) {
       }
       return alignedData;
     } else if (pathTimes.length < attrTimes.length) {
-      
+
       dataIndex = 0;
       passed = 0;
       for (let i = 0; i < pathTimes.length; i++) {
@@ -401,7 +408,7 @@ const Map = (function (dispatch, data, dimensions) {
     max = Math.max(...filtered)
     min = Math.min(...filtered)
 
- 
+
 
     const d = (max - min) / 30;
 
