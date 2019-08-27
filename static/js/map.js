@@ -52,8 +52,10 @@ const Map = (function (dispatch, data, dimensions) {
   let refLat = data['vehicle_local_position'][0]['ref_lat'];
   
   if (refLon == undefined || refLat == undefined){
+    console.log('no ref lat/lon using back up');
     refLon = data['vehicle_gps_position'][0]['lon'] / 10000000;
     refLat = data['vehicle_gps_position'][0]['lat'] / 10000000;
+    console.log(refLon,refLat);
   }
 
   map = L.map("map-canvas", {
