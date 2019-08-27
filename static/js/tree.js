@@ -65,13 +65,13 @@ const Tree = (function (dispatch, data, dimensions) {
   instance.onclick = function () {
     //console.log(instance.id)
   }
-  
- 
+
+
 
   const allEqual = arr => arr.every(v => v === arr[0])
 
 
-  dispatch.on('pinned.tree', function (spec, what,id) {
+  dispatch.on('pinned.tree', function (spec, what, id) {
     d3.select(this).style('color', '#16132E')
       .attr('class', 'on');
 
@@ -82,11 +82,13 @@ const Tree = (function (dispatch, data, dimensions) {
       y: what.y,
       title: what.log + ": " + what.y
     }
-     pinnedList = Object.assign({
-        [id.substr(5)]: chartNo 
-    }, {[chartNo]:id.substr(5)})
+    pinnedList = Object.assign({
+        [id.substr(5)]: chartNo
+    }, {
+      [chartNo]: id.substr(5)
+    })
     lineChartGen2('pinned', newWhat, pinnedLineChartSpec);
-   
+
     //console.log(pinnedList)
   });
 
@@ -157,6 +159,9 @@ const Tree = (function (dispatch, data, dimensions) {
   for (let i = 0; i < logs.length; i++) {
     let log = logs[i];
     let singles = [];
+    if (log == undefined){
+      continue
+    }
 
     ul.select("#" + log)
       .append('div')
@@ -174,16 +179,20 @@ const Tree = (function (dispatch, data, dimensions) {
         let record = records[i];
         let vals = [];
         
+        if (record == undefined){
+          continue
+        }
+
         if (record == 'q[3]' || record == 'q_d[3]') {
           continue
         }
 
         if (record == 'q[0]') {
-            xyz = convertQuant(log_data, 'q')
+          xyz = convertQuant(log_data, 'q')
         }
-        
-         if (record == 'q_d[0]') {
-            xyz = convertQuant(log_data, 'q_d')
+
+        if (record == 'q_d[0]') {
+          xyz = convertQuant(log_data, 'q_d')
         }
 
         if (record == 'q[0]' || record == 'q_d[0]') {
@@ -204,11 +213,11 @@ const Tree = (function (dispatch, data, dimensions) {
             title = 'yaw'
           }
         }
-        
-        
-        rads = ['rollspeed','pitchspeed','yawspeed','roll_body','pitch_body','yaw_body','roll','pitch','yaw']
-        
-        if (rads.indexOf(record) >= 0){
+
+
+        rads = ['rollspeed', 'pitchspeed', 'yawspeed', 'roll_body', 'pitch_body', 'yaw_body', 'roll', 'pitch', 'yaw']
+
+        if (rads.indexOf(record) >= 0) {
           log_data = convertRad(log_data, record);
         }
 
@@ -217,6 +226,7 @@ const Tree = (function (dispatch, data, dimensions) {
         }
 
         if (record != "timestamp" && !allEqual(vals)) {
+          try {
           lineChartGen2(log + "-body", {
             data: log_data,
             log: log,
@@ -224,11 +234,18 @@ const Tree = (function (dispatch, data, dimensions) {
             y: record,
             title: title
           }, treeLineChartSpec);
-
+          } catch {
+            console.log('something went wrong with', log_data, log);
+        }
         } else if (record != "timestamp") {
           singles.push(record)
         }
       }
+    
+      let valCard = d3.select('#' + log + '-body').append('div')
+          .attr('id', 'valcard' + log)
+          .attr('class', 'card-panel')
+    
       for (let i = 0; i < singles.length; i++) {
 
         let single = singles[i];
@@ -242,7 +259,8 @@ const Tree = (function (dispatch, data, dimensions) {
           width = 150 // Use the window's width 
           ,
           height = 12 // Use the window's height
-
+        
+        /*
         var svg = d3.select('#' + log + '-body')
           .append("svg")
           .attr("width", width + margin.left + margin.right)
@@ -250,8 +268,12 @@ const Tree = (function (dispatch, data, dimensions) {
           .append("g")
           .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
-
-        svg.append("text").text(single + ': ' + data[log][0][single])
+        */
+        
+        valCard.append("text").text(single + ': ' + data[log][0][single] + ",  ")
+        if (i % 2 == 0){
+        valCard.append("br")
+        }        
       }
     }
   }
@@ -260,6 +282,14 @@ const Tree = (function (dispatch, data, dimensions) {
 
 
   function lineChartGen2(where, what, spec) {
+
+    let chartData = what.data
+    let yVal = what.y;
+    let xVal = what.x;
+
+    if (chartData == undefined) {
+      return "";
+    }
 
 
     color = "#16132E"
@@ -278,9 +308,6 @@ const Tree = (function (dispatch, data, dimensions) {
       colorCycle = 0;
     }
 
-    let chartData = what.data
-    let yVal = what.y;
-    let xVal = what.x;
 
 
     let id = 'chart' + chartNo;
@@ -402,17 +429,17 @@ const Tree = (function (dispatch, data, dimensions) {
         y: chartData[i][yVal]
       });
     }
- 
+
     //console.log(chartData[0][yVal], chartData[index][yVal], chartData[0][yVal] - chartData[index][yVal])
-    
+
     tol = standardDeviation(yvals);
-    
-    if (tol >= 0.1){
+
+    if (tol >= 0.1) {
       tol = 0.1;
-    } 
-    
+    }
+
     //console.log(yVal, tol);
-    
+
     simple = simplify(xy, tol, false);
 
     let x = d3.scaleLinear()
@@ -451,8 +478,8 @@ const Tree = (function (dispatch, data, dimensions) {
     let bisect = d3.bisector(function (d) {
       return d[xVal];
     }).left;
-    
-      var focusText = lineChart
+
+    var focusText = lineChart
       .append('g')
       .append('text')
       .style("opacity", 0)
@@ -498,11 +525,11 @@ const Tree = (function (dispatch, data, dimensions) {
 
       dispatch.call('unhover', this)
       dispatch.call('hover', this, selectedData[xVal] / 10000000, chartNo)
-      
-       focusText
+
+      focusText
         .html(Math.round(selectedData[yVal] * 100) / 100 + ": " + Math.round(selectedData[xVal] / 10000000) + "s")
         .attr("x", function () {
-          if( width + x(selectedData[xVal] / 10000000) - width < width - 150){
+          if (width + x(selectedData[xVal] / 10000000) - width < width - 150) {
             return width + x(selectedData[xVal] / 10000000) - width + 20
           } else {
             return width + x(selectedData[xVal] / 10000000) - width - 120
@@ -530,13 +557,13 @@ const Tree = (function (dispatch, data, dimensions) {
     }
 
     dispatch.call('chartCreated', this, chartInfo)
-    
+
 
     return chartInfo
 
   }
 
-  
+
 
   dispatch.on('hover.tree', function (time, idNo) {
 

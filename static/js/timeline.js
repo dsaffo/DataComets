@@ -31,23 +31,25 @@ const Timeline = (function (dispatch, data, dimensions) {
   let allModes = [];
   let modes = [];
 
-  for (let i = 0; i < data['vehicle_status'].length; i++) {
-    allModes.push(data['vehicle_status'][i]['nav_state'])
-  }
-  lastMode = allModes[0];
-  modes.push({
-    val: lastMode,
-    time: data['vehicle_status'][0]['timestamp'],
-    mode: navStates[lastMode]
-  })
-  for (let i = 0; i < allModes.length; i++) {
-    if (allModes[i] != lastMode) {
-      lastMode = allModes[i];
-      modes.push({
-        val: lastMode,
-        time: data['vehicle_status'][i]['timestamp'],
-        mode: navStates[lastMode]
-      })
+  if (data['vehicle_status'][0]['nav_state'] != undefined) {
+    for (let i = 0; i < data['vehicle_status'].length; i++) {
+      allModes.push(data['vehicle_status'][i]['nav_state'])
+    }
+    lastMode = allModes[0];
+    modes.push({
+      val: lastMode,
+      time: data['vehicle_status'][0]['timestamp'],
+      mode: navStates[lastMode]
+    })
+    for (let i = 0; i < allModes.length; i++) {
+      if (allModes[i] != lastMode) {
+        lastMode = allModes[i];
+        modes.push({
+          val: lastMode,
+          time: data['vehicle_status'][i]['timestamp'],
+          mode: navStates[lastMode]
+        })
+      }
     }
   }
 
@@ -113,7 +115,7 @@ const Timeline = (function (dispatch, data, dimensions) {
         bottom: options.margin.bottom,
         left: options.margin.left
       },
-      width = options.width// Use the window's width 
+      width = options.width // Use the window's width 
       ,
       height = options.height - (margin.top + margin.bottom) // Use the window's height
 

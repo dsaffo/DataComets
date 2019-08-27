@@ -33,6 +33,10 @@ const Map = (function (dispatch, data, dimensions) {
   /*
     Map Initialization 
   */
+  
+  if (data['vehicle_gps_position'] == undefined){
+    d3.select('#loadingText').html('No GPS Data, GPS data is currently required');
+  }
 
 
   try {
@@ -46,6 +50,11 @@ const Map = (function (dispatch, data, dimensions) {
 
   let refLon = data['vehicle_local_position'][0]['ref_lon'];
   let refLat = data['vehicle_local_position'][0]['ref_lat'];
+  
+  if (refLon == undefined || refLat == undefined){
+    refLon = data['vehicle_gps_position'][0]['lon'] / 10000000;
+    refLat = data['vehicle_gps_position'][0]['lat'] / 10000000;
+  }
 
   map = L.map("map-canvas", {
     center: [refLat, refLon],
@@ -69,6 +78,7 @@ const Map = (function (dispatch, data, dimensions) {
     Code Initialization
   */
 
+  
   let selections = {
     window: [0, data['vehicle_gps_position'].length - 3],
     prevWindow: [0, data['vehicle_gps_position'].length - 3],
