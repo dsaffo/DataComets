@@ -48,20 +48,23 @@ const Map = (function (dispatch, data, dimensions) {
     console.log('no map')
   }
 
+  var refLon;
+  var refLat;
+
   try {
-    let refLon = data['vehicle_local_position'][0]['ref_lon'];
-    let refLat = data['vehicle_local_position'][0]['ref_lat'];
+    refLon = data['vehicle_local_position'][0]['ref_lon'];
+    refLat = data['vehicle_local_position'][0]['ref_lat'];
   } catch {
     console.log('no ref lat/lon using back up');
-    let refLon = data['vehicle_gps_position'][0]['lon'] / 10000000;
-    let refLat = data['vehicle_gps_position'][0]['lat'] / 10000000;
+    refLon = data['vehicle_gps_position'][0]['lon'] / 10000000;
+    refLat = data['vehicle_gps_position'][0]['lat'] / 10000000;
     console.log(refLon, refLat);
   }
 
   if (refLon == undefined || refLat == undefined) {
     console.log('no ref lat/lon using back up');
-    let refLon = data['vehicle_gps_position'][0]['lon'] / 10000000;
-    let refLat = data['vehicle_gps_position'][0]['lat'] / 10000000;
+    refLon = data['vehicle_gps_position'][0]['lon'] / 10000000;
+    refLat = data['vehicle_gps_position'][0]['lat'] / 10000000;
     console.log(refLon, refLat);
   }
 
