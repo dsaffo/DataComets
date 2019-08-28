@@ -286,7 +286,7 @@ const Overview = (function (dispatch, data, dimensions) {
     if(chartData == undefined){
       return ""
     }
-    console.log(chartData)
+    //console.log(chartData)
     
     if (what[0].unit == 'millimeters') {
       chartData = convertMillimeters(chartData, yVal);
@@ -341,7 +341,7 @@ const Overview = (function (dispatch, data, dimensions) {
         .attr('class', 'mdi mdi-map')
 
         .on('click', function () {
-          console.log(chartLedger)
+          //console.log(chartLedger)
           dispatch.call('mapped', this, chartLedger[i])
         });
 

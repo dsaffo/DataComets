@@ -119,9 +119,7 @@ const Timeline = (function (dispatch, data, dimensions) {
       ,
       height = options.height - (margin.top + margin.bottom) // Use the window's height
 
-    var brush = d3.brushX()
-      .extent([[0, 0], [width, height]])
-      .on("start brush end", brushed)
+
 
     var svg = d3.select('#' + where)
       .append("svg")
@@ -172,10 +170,6 @@ const Timeline = (function (dispatch, data, dimensions) {
       .attr('width', 1)
       .style("opacity", 0)
 
-
-    var gBrush = svg.append("g")
-      .attr("class", "brush")
-      .call(brush)
 
 
     // X - axis label for timelinem,.kl
@@ -234,6 +228,16 @@ const Timeline = (function (dispatch, data, dimensions) {
 
     //console.log(d3.brushSelection(gBrush.node))
 
+
+    var brush = d3.brushX()
+      .extent([[0, 0], [width, height]])
+      .on("start brush end", brushed)
+
+
+    var gBrush = svg.append("g")
+      .attr("class", "brush")
+      .call(brush)
+
     gBrush.call(brush.move, d3.extent(df, function (d) {
       return d[xVal] / 10000000;
     }).map(x));
@@ -244,15 +248,19 @@ const Timeline = (function (dispatch, data, dimensions) {
 
     function brushed() {
 
-
-
-      // if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
+      let brushTree = true;
 
       var s = d3.event.selection || x.range();
 
       dispatch.call('timelineBrushed', this, [s.map(x.invert)[0], s.map(x.invert)[1]]);
 
-      if (chartComps.length > 0) {
+      if (fileSize >= 50 && d3.event.type == 'brush'){
+        brushTree = false;
+      } else {
+        brushTree = true;
+      }
+          
+      if (chartComps.length > 0 && brushTree == true) {
         for (let i = 0; i < chartComps.length; i++) {
           let chart = chartComps[i];
           try {
@@ -277,10 +285,7 @@ const Timeline = (function (dispatch, data, dimensions) {
           }
         }
       }
-
-
     }
-
     return x;
   }
 

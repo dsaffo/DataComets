@@ -160,6 +160,11 @@ const Map = (function (dispatch, data, dimensions) {
     let bisect = d3.bisector(function (d) {
       return d.timestamp / 10000000
     }).left;
+    
+     
+    
+    let startData = data[log].slice(selections.window[0] - 10, selections.window[0] + 10)
+    let endData = data[log].slice(selections.window[1] - 10, selections.window[1] + 10)
 
     start = bisect(data[log], window[0]);
 

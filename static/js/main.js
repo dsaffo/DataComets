@@ -25,6 +25,7 @@ $(document).ready(function () {
 
 
 let chartNo = 0
+let fileSize = 0;
 
 
 const dispatch = d3.dispatch("timelineBrushed", "openBranch", "switchTab", "mapped", "unmapped", "chartCreated", "pinned", "unpinned", "hover", "unhover");
@@ -78,8 +79,14 @@ document.getElementById("file").onchange = function () {
   var file = document.getElementById('file').files[0];
   var formData = new FormData();
   formData.append('file', file);
+  fileSize = file.size / 1000000;
+  console.log(fileSize);
+ 
   post(formData);
+  
 };
+
+
 
 function dropHandler(ev) {
   ev.preventDefault();
