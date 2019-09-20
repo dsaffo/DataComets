@@ -45,50 +45,54 @@ uploadButton.addEventListener('click', () => {
 function post(data) {
   d3.select('#loadingText').html('Loading');
   d3.select('#loadingSpinner').style('display', 'inline')
-  $.ajax({
+  return $.ajax({
     url: "/parse",
     type: "POST",
     data: data,
     processData: false,
     contentType: false,
-    success: function (results, status) {
+    complete: function () {
+      console.log('plotting')
       d3.select('#loadingText').html('Plotting');
-      //console.log('POST', JSON.parse(results));
-      d3.selectAll("#tree").selectAll('li').remove();
-      d3.selectAll(".card-panel").remove();
-      d3.selectAll("svg").remove();
-      let data = JSON.parse(results)
-      const map = Map(dispatch, data, dimensions);
-      const timeline = Timeline(dispatch, data, dimensions);
-      const tree = Tree(dispatch, data, dimensions);
-      const overview = Overview(dispatch, data, dimensions);
-      d3.select('#curtain').remove();
-      $('#m1').modal({
-        dismissible: true
-      });
-      $('#m1').modal('close');
-      d3.select('#loadingText').html('');
-      d3.select('#loadingSpinner').style('display', 'none')
     }
-
   });
 }
 
-document.getElementById("file").onchange = function () {
+
+
+document.getElementById("file").onchange = async function () {
   var $form = document.getElementById("uploadForm")
   var file = document.getElementById('file').files[0];
   var formData = new FormData();
   formData.append('file', file);
   fileSize = file.size / 1000000;
   console.log(fileSize);
- 
-  post(formData);
-  
+
+  res = await post(formData);
+
+
+  d3.selectAll("#tree").selectAll('li').remove();
+  d3.selectAll(".card-panel").remove();
+  d3.selectAll("svg").remove();
+
+  let data = JSON.parse(res)
+  const map = Map(dispatch, data, dimensions);
+  const timeline = Timeline(dispatch, data, dimensions);
+  const tree = Tree(dispatch, data, dimensions);
+  const overview = Overview(dispatch, data, dimensions);
+  d3.select('#curtain').remove();
+  $('#m1').modal({
+    dismissible: true
+  });
+  $('#m1').modal('close');
+  d3.select('#loadingText').html('');
+  d3.select('#loadingSpinner').style('display', 'none')
+
 };
 
 
 
-function dropHandler(ev) {
+ async function dropHandler(ev) {
   ev.preventDefault();
   if (ev.dataTransfer.items) {
     // Use DataTransferItemList interface to access the file(s)
@@ -98,7 +102,28 @@ function dropHandler(ev) {
         var file = ev.dataTransfer.items[i].getAsFile();
         var formData = new FormData();
         formData.append('file', file);
-        post(formData);
+        
+
+        res = await post(formData);
+
+        console.log('made it');
+        d3.selectAll("#tree").selectAll('li').remove();
+        d3.selectAll(".card-panel").remove();
+        d3.selectAll("svg").remove();
+
+        let data = JSON.parse(res)
+        const map = Map(dispatch, data, dimensions);
+        const timeline = Timeline(dispatch, data, dimensions);
+        const tree = Tree(dispatch, data, dimensions);
+        const overview = Overview(dispatch, data, dimensions);
+        d3.select('#curtain').remove();
+        $('#m1').modal({
+          dismissible: true
+        });
+        $('#m1').modal('close');
+        d3.select('#loadingText').html('');
+        d3.select('#loadingSpinner').style('display', 'none')
+
       }
     }
   }
