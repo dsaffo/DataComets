@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+
+<html style="height: 100%; width: 100%">
+
+<head>
+
+  <title>Data Comets</title>
+  <link rel="icon" type="image/png" href="imgs/favicon.png">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta charset="utf-8" />
+
+<!-- leaflet -->
+<script src="leaflet/leaflet.js"></script>
+<link rel="stylesheet" href="leaflet/leaflet.css">
+
+<!-- jQuery -->
+<script src="jquery/jQuery.js"></script>
+
+<!-- Materialize-->
+<script src="materialize/js/materialize.js"></script>
+<link rel="stylesheet" href="materialize/css/materialize.css">
+<link rel="stylesheet" href="icons/css/materialdesignicons.min.css">
+
+<!-- D3 -->
+<script src="d3/d3.min.js"></script>
+
+<!-- Style -->
+<link rel="stylesheet" type="text/css" href="css/style.css">
+
+
+<!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js" type="text/javascript"></script>
+
+<script src="./read.js"></script> 
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-145274579-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-145274579-1');
+
+  </script>
+  <!-- Place this tag in your head or just before your close body tag. -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+</head>
+
+<body style=" height: 100%; margin: 0; padding: 0 ">
+
+  <svg id="curtain" width="100%" height="100%" style="background: #FAFAFA"></svg>
+
+  <div style="text-align: center" id="m1" class="modal modal-fixed-footer">
+    <div class="modal-content">
+      <form id='uploadForm' style="height: 40%">
+        <div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" ondragleave="dragOutHandler(event);">
+          <input id='file' type="file" name="file" autocomplete="off" accept=".ULG" required>
+          <img height="60%" width="auto" src="imgs/DataCometsLogo.png">
+          <h5>Drag Or Select ULog To Get Started</h5>
+          <span>Or take Data Comets for a spin with this <a href="javascript:void(0);" onclick="loadDemo(event);">log</a></span>
+          <h6 style="margin-top: -1px;" id="loadingText"></h6>
+          <img id="loadingSpinner" style="margin-top: -20px; display: none" height="40px" src='imgs/spinner.gif'>
+        </div>
+      </form>
+      
+      <h4>Data Comets</h4>
+      <span>Interactive PX4 Flight Log Analysis Tool</span>
+      <h5 style="color:red"><a href="https://forms.gle/5BBUH4Fk6dK6FN499" target="_blank">Help us improve Data Comets with this short survey!</a></h5>
+      <hr>
+     
+      <video style="text-align: center" height="45%" width="auto"  autoplay controls loop>
+        <source src="imgs/DataCometsWalkThrough.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    
+    </div>
+    <div class="modal-footer">
+
+      <a class="github-button" href="https://github.com/dsaffo/DataComets" data-size="large" aria-label="Get Local Version">Get Local Version</a>
+      <a class="github-button" href="https://github.com/dsaffo/DataComets" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star dsaffo/DataComets on GitHub">Star</a>
+      <a class="github-button" href="https://github.com/dsaffo/DataComets/issues" data-icon="octicon-issue-opened" data-size="large" aria-label="Issue dsaffo/DataComets on GitHub">Issue</a>
+       <a class="github-button" href="https://github.com/dsaffo" data-size="large" data-show-count="true" aria-label="Follow @dsaffo on GitHub">Follow @dsaffo</a>
+    </div>
+
+  </div>
+
+  <div id="infoModal" class="modal modal-fixed-footer">
+    <div class="modal-content">
+    </div>
+    <div class="modal-footer"></div>
+  </div>
+
+
+  <ul id="slide-out" class="sidenav">
+
+    <li>
+      <div class="divider"></div>
+    </li>
+    <li><a class="subheader">Map Controls</a></li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input checked id='gpsRecordedSwitch' type="checkbox">
+          <span class="lever"></span>
+          GPS Positions Recorded
+        </label>
+      </div>
+    </li>
+
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='gpsEstimatedSwitch' type="checkbox">
+          <span class="lever"></span>
+          GPS Positions Estimated
+        </label>
+      </div>
+    </li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='setPointSwitch' type="checkbox">
+          <span class="lever"></span>
+          Position Set Points
+        </label>
+      </div>
+    </li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='ghostSwitch' type="checkbox">
+          <span class="lever"></span>
+          Ghost Path
+        </label>
+      </div>
+    </li>
+    <!--<li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='widthSwitch' type="checkbox">
+          <span class="lever"></span>
+          Width Encoding
+        </label>
+      </div>
+    </li>
+    <li>
+      <div class="switch">
+        <label style="color: black; font-size: 15px">
+          <input id='colorSwitch' type="checkbox">
+          <span class="lever"></span>
+          Color Scale Range
+        </label>
+      </div>
+    </li>-->
+
+  </ul>
+
+
+  <div id="map-canvas" style="position: relative; z-index: 1; width:70%; height: 90%; float: left">
+
+    <a style="position: relative; z-index: 2; float: left; margin-top: 10px; margin-left: 10px; color: white" href="#" data-target="slide-out" class="sidenav-trigger">
+      <i class="mdi mdi-settings small"></i></a>
+
+    <!--<a style="position: relative; z-index: 2; float: right; margin-top: 10px; margin-right: 10px; color: white" class="modal-trigger" href="#infoModal">
+      <i class="mdi mdi-information-outline small"></i></a>-->
+
+  </div>
+  <div id='timeline-container' style="height: 10%; width: 70%; bottom: 0px; position: absolute;"> </div>
+
+
+  <div id='tree-container' style="width: 30%; height: 100%; overflow: auto; float: right;">
+    <div class="navbar-fixed">
+      <nav class="nav-extended" style="width: 30%">
+        <div class="nav-wrapper">
+          <!-- <form class="left" style="width: 60%; height: 64px">
+            <div class="input-field">
+              <input id="search" type="search" required>
+              <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+              <i class="material-icons">close</i>
+            </div>
+          </form> -->
+          <ul class="right">
+            <li><a id="top"><i class="mdi mdi-arrow-up"></i></a></li>
+            <!--<li><a><i class="material-icons">unfold_less</i></a></li>-->
+            <li><a id="uploadModal" class="modal-trigger" href="#m1"><i class="mdi mdi-file-upload"></i></a></li>
+          </ul>
+        </div>
+        <div class="nav-content">
+          <ul id='tabs' class="tabs tabs-transparent tabs-fixed-width">
+            <li class="tab" id='startTab'><a class="active" href="#overview">Overview</a></li>
+            <li class="tab"><a href="#pinned">Pinned</a></li>
+            <li class="tab"><a href="#all">All</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <div style="margin-top: 49px; margin-left: 0px">
+      <div id="all" style="display: block">
+        <ul class="collapsible expandable" id="tree"></ul>
+      </div>
+      <div id='pinned' class="collapsible" style="width 100%; height: 100%; display: block;"></div>
+      <div id='overview' class="collapsible" style="width 100%; height: 100%; display: block;"></div>
+    </div>
+  </div>
+
+  <div id='test'></div>
+
+
+<script src="js/simplfy.js"></script>
+
+<script src="js/main.js"></script>
+
+<script src="js/map.js"></script>
+
+<script src="js/timeline.js"></script>
+
+<script src="js/conversions.js"></script>
+
+<script src="js/tree.js"></script>
+
+<script src="js/tree-overview.js"></script>
+
+<script src="js/quat-euler.js"></script>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <title>Data Comets</title>
+  <link rel="icon" type="image/png" href="imgs/favicon.png">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta charset="utf-8" />
+
+  <!-- leaflet -->
+  <script src="leaflet/leaflet.js"></script>
+  <link rel="stylesheet" href="leaflet/leaflet.css">
+
+  <!-- jQuery -->
+  <script src="jquery/jQuery.js"></script>
+
+  <!-- Materialize-->
+  <script src="materialize/js/materialize.js"></script>
+  <link rel="stylesheet" href="materialize/css/materialize.css>
+  <link rel="stylesheet" href="icons/css/materialdesignicons.min.css">
+
+  <!-- D3 -->
+  <script src="d3/d3.min.js"></script>
+
+  <!-- Style -->
+  <link rel="stylesheet" type="text/css" href="css/style.css")}}">
+
+
+  <!-- Place this tag in your head or just before your close body tag. -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js" type="text/javascript"></script>
+
+  <script src="./read.js"></script> 
+
+</head>
+
+
+<body>
+  <form id='uploadForm' style="height: 40%">
+    <div id="drop_zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" ondragleave="dragOutHandler(event);">
+      <input id='file' type="file" name="file" autocomplete="off" accept=".ulg" required>
+      <img height="60%" width="auto" src="imgs/DataCometsLogo.png">
+      <h5>Drag Or Select ULog To Get Started</h5>
+      <span>Or take Data Comets for a spin with this <a href="javascript:void(0);" onclick="loadDemo(event);">log</a></span>
+      <h6 style="margin-top: -1px;" id="loadingText"></h6>
+      <img id="loadingSpinner" style="margin-top: -20px; display: none" height="40px" src='imgs/spinner.gif'>
+    </div>
+  </form>
+</body>
+
+
+<script>
+  
+  const uploadButton = document.getElementById('drop_zone');
+  const realInput = document.getElementById('file');
+  
+  uploadButton.addEventListener('click', () => {
+  realInput.click();
+});
+  
+  /*
+
+  document.getElementById("file").onchange = async function () {
+  console.log('hi');
+  var $form = document.getElementById("uploadForm")
+  var file = document.getElementById('file').files[0];
+  let reader = new FileReader();
+
+      readULog(reader.readAsArrayBuffer(file), function(d){
+      console.log('hi reader');
+    });
+
+    
+
+
+  var formData = new FormData();
+  formData.append('file', file);
+  fileSize = file.size / 1000000;
+  console.log(fileSize);
+
+  
+
+
+ 
+  
+  try {
+    const res = await readULog(file, function(d){
+      console.log(d);
+    });
+    console.log("success")
+    console.log(res)
+  } catch(err) {
+    console.log('error')
+    console.log(err);
+  }
+ 
+  
+  
+};
+*/
+
+function displayULogBinary(binary) {
+    readULog(binary, (d) => {
+        document.getElementById('drop_zone').style.backgroundColor = "red";
+    });
+}
+
+function handleFileSelect(evt) {
+    console.log('loading');
+    //document.getElementById("loading").style.display = "block";
+    let files = evt.target.files;
+
+    for (let i = 0; i < files.length; i++) {
+        let reader = new FileReader();
+
+        reader.onload = (e) => {displayULogBinary(e.target.result)};
+            
+        reader.readAsArrayBuffer(files[i]);
+    }
+}
+document.getElementById('file').addEventListener('change', handleFileSelect, false);
+
+
+
+</script>
+
+</html>
