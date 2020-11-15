@@ -86,10 +86,11 @@ document.getElementById("file").onchange = async function () {
     readULog(binary, (d) => {
         //console.log(d.data)
         let data = d.data;
-        const map = Map(dispatch, data, dimensions);
+				const map = Map(dispatch, data, dimensions);
         const timeline = Timeline(dispatch, data, dimensions);
+				const overview = Overview(dispatch, data, dimensions);
         const tree = Tree(dispatch, data, dimensions);
-        const overview = Overview(dispatch, data, dimensions);
+        
         d3.select('#curtain').remove();
         $('#m1').modal({
           dismissible: true
@@ -126,9 +127,9 @@ document.getElementById("file").onchange = async function () {
 
         let data = JSON.parse(res)
         const map = Map(dispatch, data, dimensions);
-        const timeline = Timeline(dispatch, data, dimensions);
-        const tree = Tree(dispatch, data, dimensions);
-        const overview = Overview(dispatch, data, dimensions);
+        //const timeline = Timeline(dispatch, data, dimensions);
+        //const tree = Tree(dispatch, data, dimensions);
+        //const overview = Overview(dispatch, data, dimensions);
         d3.select('#curtain').remove();
         $('#m1').modal({
           dismissible: true

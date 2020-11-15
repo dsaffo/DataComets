@@ -31,14 +31,14 @@ const Timeline = (function (dispatch, data, dimensions) {
   let allModes = [];
   let modes = [];
 
-  if (data['vehicle_status'][0]['nav_state'] != undefined) {
-    for (let i = 0; i < data['vehicle_status'].length; i++) {
-      allModes.push(data['vehicle_status'][i]['nav_state'])
+  if (data['vehicle_status_0'][0]['nav_state'] != undefined) {
+    for (let i = 0; i < data['vehicle_status_0'].length; i++) {
+      allModes.push(data['vehicle_status_0'][i]['nav_state'])
     }
     lastMode = allModes[0];
     modes.push({
       val: lastMode,
-      time: data['vehicle_status'][0]['timestamp'],
+      time: data['vehicle_status_0'][0]['timestamp'],
       mode: navStates[lastMode]
     })
     for (let i = 0; i < allModes.length; i++) {
@@ -46,7 +46,7 @@ const Timeline = (function (dispatch, data, dimensions) {
         lastMode = allModes[i];
         modes.push({
           val: lastMode,
-          time: data['vehicle_status'][i]['timestamp'],
+          time: data['vehicle_status_0'][i]['timestamp'],
           mode: navStates[lastMode]
         })
       }
@@ -55,8 +55,22 @@ const Timeline = (function (dispatch, data, dimensions) {
 
   //console.log(modes)
 
+	var xAxis = ''	
+		
   dispatch.on('chartCreated.timeline', function (comps) {
     chartComps.push(comps)
+  });
+		
+	dispatch.on('mapped.timeline', function (chartInfo) {
+    xAxis = lineChartGen('timeline-container', chartInfo.what, timelineLineChartSpec, chartInfo.color);
+  })
+
+  dispatch.on('hover.timeline', function (time) {
+    d3.select('#hoverTimeline').style("opacity", 0.5).attr("x", xAxis(time)).attr("y", 0);
+  });
+
+  dispatch.on('unhover.timeline', function () {
+    d3.select('#hoverTimeline').style("opacity", 0)
   });
 
   let test = function () {
@@ -79,20 +93,11 @@ const Timeline = (function (dispatch, data, dimensions) {
     height: dimensions.timeline.height - 10
   }
 
-  let xAxis = '';
+ 
 
 
-  dispatch.on('hover.timeline', function (time) {
-    d3.select('#hoverTimeline').style("opacity", 0.5).attr("x", xAxis(time)).attr("y", 0);
-  });
 
-  dispatch.on('unhover.timeline', function () {
-    d3.select('#hoverTimeline').style("opacity", 0)
-  });
 
-  dispatch.on('mapped.timeline', function (chartInfo) {
-    xAxis = lineChartGen('timeline-container', chartInfo.what, timelineLineChartSpec, chartInfo.color);
-  })
 
   function lineChartGen(where, what, options, color) {
     d3.select('#' + where).selectAll('svg').remove();

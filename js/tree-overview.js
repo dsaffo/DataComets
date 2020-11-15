@@ -16,12 +16,12 @@ const Overview = (function (dispatch, data, dimensions) {
 
   color5 = '#F7AC40'
 
-
+/*
   const multicharts = [
     [{
 
-        data: data['vehicle_gps_position'],
-        log: 'vehicle_gps_position',
+        data: data['vehicle_gps_position_0'],
+        log: 'vehicle_gps_position_0',
         x: 'timestamp',
         y: 'alt',
         title: 'Altitude Recorded (Meters)',
@@ -29,32 +29,32 @@ const Overview = (function (dispatch, data, dimensions) {
         color: color1
   },
       {
-        data: data['vehicle_global_position'],
-        log: 'vehicle_global_position',
+        data: data['vehicle_global_position_0'],
+        log: 'vehicle_global_position_0',
         x: 'timestamp',
         y: 'alt',
         title: 'Altitude Estimated (Meters)',
         color: color5
     }],
                        [{
-      data: data['position_setpoint_triplet'],
-      log: 'position_setpoint_triplet',
+      data: data['position_setpoint_triplet_0'],
+      log: 'position_setpoint_triplet_0',
       x: 'timestamp',
       y: 'current.alt',
       title: 'Altitude Set Points (Meters)',
       color: color2
     }],
     [{
-      data: data['vehicle_air_data'],
-      log: 'vehicle_air_data',
+      data: data['vehicle_air_data_0'],
+      log: 'vehicle_air_data_0',
       x: 'timestamp',
       y: 'baro_alt_meter',
       title: 'Barometer Altitude (Meters)',
       color: color3
     }],
                        [{
-        data: data['vehicle_attitude'],
-        log: 'vehicle_attitude',
+        data: data['vehicle_attitude_0'],
+        log: 'vehicle_attitude_0',
         x: 'timestamp',
         y: 'q[0]',
         title: 'Roll Angle Estimated (Degs)',
@@ -62,8 +62,8 @@ const Overview = (function (dispatch, data, dimensions) {
         unit: 'quantrinoin'
     },
       {
-        data: data['vehicle_attitude_setpoint'],
-        log: 'vehicle_attitude_setpoint',
+        data: data['vehicle_attitude_setpoint_0'],
+        log: 'vehicle_attitude_setpoint_0',
         x: 'timestamp',
         y: 'q_d[0]',
         title: 'Roll Angle Setpoint (Degs)',
@@ -71,8 +71,8 @@ const Overview = (function (dispatch, data, dimensions) {
         unit: 'quantrinoin'
     }],
                        [{
-        data: data['vehicle_attitude'],
-        log: 'vehicle_attitude',
+        data: data['vehicle_attitude_0'],
+        log: 'vehicle_attitude_0',
         x: 'timestamp',
         y: 'q[1]',
         title: 'Pitch Angle Estimated (Degs)',
@@ -80,8 +80,8 @@ const Overview = (function (dispatch, data, dimensions) {
         unit: 'quantrinoin'
     },
       {
-        data: data['vehicle_attitude_setpoint'],
-        log: 'vehicle_attitude_setpoint',
+        data: data['vehicle_attitude_setpoint_0'],
+        log: 'vehicle_attitude_setpoint_0',
         x: 'timestamp',
         y: 'q_d[1]',
         title: 'Pitch Angle Setpoint (Degs)',
@@ -89,8 +89,8 @@ const Overview = (function (dispatch, data, dimensions) {
         unit: 'quantrinoin'
     }],
                        [{
-        data: data['vehicle_attitude'],
-        log: 'vehicle_attitude',
+        data: data['vehicle_attitude_0'],
+        log: 'vehicle_attitude_0',
         x: 'timestamp',
         y: 'q[2]',
         title: 'Yaw Angle Estimated (Degs)',
@@ -98,8 +98,8 @@ const Overview = (function (dispatch, data, dimensions) {
         unit: 'quantrinoin'
     },
       {
-        data: data['vehicle_attitude_setpoint'],
-        log: 'vehicle_attitude_setpoint',
+        data: data['vehicle_attitude_setpoint_0'],
+        log: 'vehicle_attitude_setpoint_0',
         x: 'timestamp',
         y: 'q_d[2]',
         title: 'Yaw Angle Setpoint (Degs)',
@@ -107,8 +107,8 @@ const Overview = (function (dispatch, data, dimensions) {
         unit: 'quantrinoin'
     }],
                        [{
-        data: data['vehicle_attitude'],
-        log: 'vehicle_attitude',
+        data: data['vehicle_attitude_0'],
+        log: 'vehicle_attitude_0',
         x: 'timestamp',
         y: 'rollspeed',
         title: 'Roll Anguler Rate Estimated (Degs/s)',
@@ -116,8 +116,8 @@ const Overview = (function (dispatch, data, dimensions) {
         unit: 'quantrinoin'
     },
       {
-        data: data['vehicle_rates_setpoint'],
-        log: 'vehicle_rates_setpoint',
+        data: data['vehicle_rates_setpoint_0'],
+        log: 'vehicle_rates_setpoint_0',
         x: 'timestamp',
         y: 'roll',
         title: 'Roll Angular Rate Setpoint (Degs/s)',
@@ -125,8 +125,8 @@ const Overview = (function (dispatch, data, dimensions) {
         unit: 'quantrinoin'
     }],
                        [{
-        data: data['vehicle_attitude'],
-        log: 'vehicle_attitude',
+        data: data['vehicle_attitude_0'],
+        log: 'vehicle_attitude_0',
         x: 'timestamp',
         y: 'pitchspeed',
         title: 'Pitch Angular Rate Estimated (Degs/s)',
@@ -134,8 +134,8 @@ const Overview = (function (dispatch, data, dimensions) {
         unit: 'quantrinoin'
     },
       {
-        data: data['vehicle_rates_setpoint'],
-        log: 'vehicle_rates_setpoint',
+        data: data['vehicle_rates_setpoint_0'],
+        log: 'vehicle_rates_setpoint_0',
         x: 'timestamp',
         y: 'pitch',
         title: 'Pitch Angular Rate Setpoint (Degs/s)',
@@ -143,109 +143,144 @@ const Overview = (function (dispatch, data, dimensions) {
         unit: 'quantrinoin'
     }],
                        [{
-      data: data['vehicle_attitude'],
-      log: 'vehicle_attitude',
+      data: data['vehicle_attitude_0'],
+      log: 'vehicle_attitude_0',
       x: 'timestamp',
       y: 'yawspeed',
       title: 'Yaw Angular Rate Estimated (Degs/s)',
       color: color1,
       unit: 'quantrinoin'
     }, {
-      data: data['vehicle_rates_setpoint'],
-      log: 'vehicle_rates_setpoint',
+      data: data['vehicle_rates_setpoint_0'],
+      log: 'vehicle_rates_setpoint_0',
       x: 'timestamp',
       y: 'yaw',
       title: 'Yaw Angular Rate Setpoint (Degs/s)',
       color: color5,
       unit: 'quantrinoin'
     }], [{
-      data: data['actuator_controls_0'],
-      log: 'actuator_controls_0',
+      data: data['actuator_controls_0_0'],
+      log: 'actuator_controls_0_0',
       x: 'timestamp',
       y: 'control[3]',
       title: 'Thrust Control (0=no thrust - 1=max thrust)',
       color: color2
     }],
     [{
-      data: data['actuator_controls_0'],
-      log: 'actuator_controls_0',
+      data: data['actuator_controls_0_0'],
+      log: 'actuator_controls_0_0',
       x: 'timestamp',
       y: 'control[0]',
       title: 'Roll Control (-1 - 1)',
       color: color3
     }],
     [{
-      data: data['actuator_controls_0'],
-      log: 'actuator_controls_0',
+      data: data['actuator_controls_0_0'],
+      log: 'actuator_controls_0_0',
       x: 'timestamp',
       y: 'control[1]',
       title: 'Pitch Control (-1 - 1)',
       color: color4
     }],
     [{
-      data: data['actuator_controls_0'],
-      log: 'actuator_controls_0',
+      data: data['actuator_controls_0_0'],
+      log: 'actuator_controls_0_0',
       x: 'timestamp',
       y: 'control[2]',
       title: 'Yaw Control (-1 - 1)',
       color: color5
     }],
     [{
-      data: data['vehicle_gps_position'],
-      log: 'vehicle_gps_position',
+      data: data['vehicle_gps_position_0'],
+      log: 'vehicle_gps_position_0',
       x: 'timestamp',
       y: 'vel_m_s',
       title: 'Velocity (Meters/second)',
       color: color1
     }],
     [{
-      data: data['battery_status'],
-      log: 'battery_status',
+      data: data['battery_status_0'],
+      log: 'battery_status_0',
       x: 'timestamp',
       y: 'remaining',
       title: 'Battery Remaining (0=Empty - 1=Full)',
       color: color2
     }],
     [{
-      data: data['battery_status'],
-      log: 'battery_status',
+      data: data['battery_status_0'],
+      log: 'battery_status_0',
       x: 'timestamp',
       y: 'current_filtered_a',
       title: 'Battery Current (Amps)',
       color: color3
     }],
     [{
-      data: data['battery_status'],
-      log: 'battery_status',
+      data: data['battery_status_0'],
+      log: 'battery_status_0',
       x: 'timestamp',
       y: 'discharged_mah',
       title: 'Battery Discharged (Milliamp Hours)',
       color: color4
     }],
     [{
-      data: data['vehicle_gps_position'],
-      log: 'vehicle_gps_position',
+      data: data['vehicle_gps_position_0'],
+      log: 'vehicle_gps_position_0',
       x: 'timestamp',
       y: 'noise_per_ms',
       title: 'Noise (Per Meters/second)',
       color: color5
     }],
     [{
-      data: data['vehicle_gps_position'],
-      log: 'vehicle_gps_position',
+      data: data['vehicle_gps_position_0'],
+      log: 'vehicle_gps_position_0',
       x: 'timestamp',
       y: 'jamming_indicator',
       title: 'Jamming Indicator',
       color: color1
     }],
     [{
-      data: data['cpuload'],
-      log: 'cpuload',
+      data: data['cpuload_0'],
+      log: 'cpuload_0',
       x: 'timestamp',
       y: 'load',
       title: 'CPU Load (0 - 1)',
       color: color2
     }]]
+    */
+		
+		
+	
+  dispatch.on('chartCreated.overview', function (chartInfo) {
+    chartList.push(chartInfo);
+  });
+
+  dispatch.on('hover.overview', function (time, idNo) {
+    for (let i = 0; i < chartList.length; i++) {
+      let chart = chartList[i];
+      if (chart.chartNo != idNo) {
+        d3.select("#hover" + chart.chartNo).style('opacity', 0.5).style("fill", "black").attr("x", chart.axis(time)).attr("y", 0);
+      }
+    }
+
+  })
+
+  dispatch.on('unhover.overview', function () {
+    for (let i = 0; i < chartList.length; i++) {
+      let chart = chartList[i];
+      d3.select("#hover" + chart.chartNo).style('opacity', 0);
+    }
+  });
+    
+  const multicharts = [
+      [{
+      data: data['cpuload_0'],
+      log: 'cpuload_0',
+      x: 'timestamp',
+      y: 'load',
+      title: 'CPU Load (0 - 1)',
+      color: color2
+    }]
+  ]
 
 
   let defaultPinnedLineChartSpec = {
@@ -261,17 +296,20 @@ const Overview = (function (dispatch, data, dimensions) {
     default: true
   }
 
-
+	
 
   for (let i = 0; i < multicharts.length; i++) {
     try {
-      let starter = overviewChartGen('overview', multicharts[i], defaultPinnedLineChartSpec);
-      if (i == 0) dispatch.call('mapped', this, starter);
+     overviewChartGen('overview', multicharts[i], defaultPinnedLineChartSpec);
+      
     } catch {
       console.log('something went wrong with these charts', multicharts[i]);
     }
   }
-
+    
+  console.log(chartList)
+  dispatch.call('mapped', this, chartList[0]);
+    
 
   function overviewChartGen(where, what, spec) {
 
@@ -481,7 +519,7 @@ const Overview = (function (dispatch, data, dimensions) {
       .on('mouseout', mouseout);
 
     function mouseover() {
-      //focus.style("opacity", 0.5)
+      focus.style("opacity", 0.5)
       focusText.style("opacity", 1)
     }
 
@@ -591,7 +629,7 @@ const Overview = (function (dispatch, data, dimensions) {
         color: color
       }
       chartLedger.push(chartInfo);
-      dispatch.call('chartCreated', this, chartInfo)
+      dispatch.call('chartCreated', this, chartInfo);
 
     }
 
@@ -620,27 +658,6 @@ const Overview = (function (dispatch, data, dimensions) {
 
 
 
-  dispatch.on('chartCreated.overview', function (chartInfo) {
-    chartList.push(chartInfo);
-  });
-
-  dispatch.on('hover.overview', function (time, idNo) {
-
-    for (let i = 0; i < chartList.length; i++) {
-      let chart = chartList[i];
-      if (chart.chartNo != idNo) {
-        d3.select("#hover" + chart.chartNo).style('opacity', 0.5).style("fill", "black").attr("x", chart.axis(time)).attr("y", 0);
-      }
-    }
-
-  })
-
-  dispatch.on('unhover.overview', function () {
-    for (let i = 0; i < chartList.length; i++) {
-      let chart = chartList[i];
-      d3.select("#hover" + chart.chartNo).style('opacity', 0);
-    }
-  });
 
 
 });

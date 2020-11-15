@@ -123,13 +123,18 @@ class Unpacker {
             vars = vars ? vars : [];
             
             for (let i = 0; i < vars.length; i++) {
-                let variable_name = vars[i].substring(1);
-                member_length = member_length.replace(vars[i], result_obj[variable_name]);
+               let variable_name = vars[i].substring(1);
+               //console.log(vars[i]);
+               //console.log('res',result_obj[variable_name])
+               
+               //console.log("mem", member_length);
+               member_length = member_length.replace(vars[i], result_obj[variable_name]);
             }
             member_length = eval(member_length);
             result_obj[member.name] = this.take(member.type, member_length);
             
         }
+        //console.log(result_obj);
         return result_obj;
     }
 
@@ -207,6 +212,7 @@ function parseAddLogMessages(messages) {
 
 function parseFieldList(unpacker, format, allFormats) {
     let parsedData = {};
+    test = 0;
     for (let j = 0; j < format.length; j++) {
         let field_type = format[j].split(" ")[0];
         let field_name = format[j].split(" ")[1];
@@ -215,25 +221,44 @@ function parseFieldList(unpacker, format, allFormats) {
             if (field_type[field_type.length - 1] == "]") { //is array type
                 n = parseInt(field_type.substring(field_type.indexOf("[") + 1, field_type.indexOf("]")));
                 field_type = field_type.substring(0, field_type.indexOf("["));
+                
             }
             if (!TYPES[field_type] && allFormats[field_type]) {
                 let sub = parseFieldList(unpacker, allFormats[field_type], allFormats);
 
                 parsedData[field_name] = sub;
+                //console.log(field_name, sub)
+                test = 1;
             } else {
                 parsedData[field_name] = unpacker.take(TYPES[field_type], n);
+                if(Array.isArray(parsedData[field_name])){
+                    let list = parsedData[field_name];
+                    for (let i = 0; i < list.length; i++){
+                        parsedData[field_name + '[' + i + ']'] = list[i];
+                    }
+                }
+                
+               
+
             }
         }
+        //if(typeof parsedData[field_name] != 'number' && typeof parsedData[field_name] != 'boolean'){
+        //    console.log(typeof parsedData[field_name], field_name, parsedData[field_name]);
+        //}
         
     }
+    //if (test == 1){
+    //console.log(parsedData);
+    //}
     return parsedData;
 }
 
 function parseDataMessages(messages, id_to_msg_name, formats) {
-    let t0 = performance.now();
+    console.log("parsing data messages")
+    //let t0 = performance.now();
     let parsedMessages = {};
     for (let id in id_to_msg_name) {
-        let parsedId = id_to_msg_name[id].name + "_" + id_to_msg_name[id].multiId;
+        let parsedId = id_to_msg_name[id].name; //+ "_" + id_to_msg_name[id].multiId;
         if (!parsedMessages[parsedId]) {
             parsedMessages[parsedId] = [];
         }
@@ -241,12 +266,14 @@ function parseDataMessages(messages, id_to_msg_name, formats) {
         let format = formats[id_to_msg_name[id].name];
         for (let i = 0; i < messages_subset.length; i++) {
             let data = messages_subset[i].data;
+           // console.log(parseFieldList(new Unpacker(new Uint8Array(data).buffer), format, formats));
+          // console.log(parsedId);
             parsedMessages[parsedId].push(parseFieldList(new Unpacker(new Uint8Array(data).buffer), format, formats));
         }
     }
     
-    let t1 = performance.now();
-    console.log("Call to parseDataMessages took " + (t1 - t0) + " milliseconds.")
+    //let t1 = performance.now();
+    //console.log("Call to parseDataMessages took " + (t1 - t0) + " milliseconds.")
 
     return parsedMessages;
 }
@@ -264,6 +291,7 @@ function parseDropoutMessages(messages) {
 }
 
 function readULog(binary, callback) {
+    console.log('reading');
     let messages = [];
     let headerUnpacker = new Unpacker(binary.slice(0, 16));
     
@@ -278,7 +306,7 @@ function readULog(binary, callback) {
     let unpacker = new Unpacker(binary.slice(16));
 
     let appendedDataIndex = unpacker.data.byteLength;
-
+    
     while (!unpacker.empty()) {
         if (unpacker.currIndex >= appendedDataIndex) {
             console.log("DONE READING UNAPPENDED STUFF");
@@ -299,9 +327,11 @@ function readULog(binary, callback) {
             }
 
         }
+        //console.log(msg_obj)
         messages.push(msg_obj);
     }
 
+    
     unpacker.currIndex = appendedDataIndex;
     let appendedMessages = [];
     while (!unpacker.empty()) {
@@ -312,37 +342,58 @@ function readULog(binary, callback) {
         let msg_obj = unpacker.unpack(msg_type, locals);
         appendedMessages.push(msg_obj);
     }
-
     messages = messages.concat(appendedMessages);
+    
 
     console.log("Finished unpacking...");
-    let info = parseInformationMessages(_.filter(messages, (x) => {return x.msg_type == "I"}));
-    let multiInfo = parseInformationMultiMessages(_.filter(messages, (x) => {return x.msg_type == "M"}));
+    // let info = parseInformationMessages(_.filter(messages, (x) => {return x.msg_type == "I"}));
+    // let multiInfo = parseInformationMultiMessages(_.filter(messages, (x) => {return x.msg_type == "M"}));
     let formats = parseFormatMessages(_.filter(messages, (x) => {return x.msg_type == "F"}));
     let id_to_msg_name = parseAddLogMessages(_.filter(messages, (x) => {return x.msg_type == "A"}));
     let data = parseDataMessages(_.filter(messages, (x) => {return x.msg_type == "D"}), id_to_msg_name, formats);
+    //data = _.mapObject(data, (x) => {
+    //    return _.map(x, (y) => {
+    //        //y.timestamp -= loggingStartTime;
+    //        return y;
+     //   });
+    //});
+    //console.log(data.position_setpoint_triplet);
     /*
-    data = _.mapObject(data, (x) => {
-        return _.map(x, (y) => {
-            y.timestamp -= loggingStartTime;
-            return y;
-        });
-    });
+    newObj = []
+    ind = ['current','next','previous'];
+    for (let i = 0; i < data.position_setpoint_triplet.length; i++){
+        //console.log(data.position_setpoint_triplet[i])
+        timestamp = data.position_setpoint_triplet[i]['timestamp']
+        row = {}
+        for (let j = 0; j < ind.length; j++){
+            row['timestamp'] = timestamp;
+            keys = Object.keys(data.position_setpoint_triplet[i][ind[j]]);
+            for (let k = 0; k < keys.length; k++){
+                row[ind[j] + '.' + keys[k]] = data.position_setpoint_triplet[i][ind[j]][keys[k]]
+            }
+        }
+        newObj.push(row);
+    }
+    data['position_setpoint_triplet'] = newObj;
+
+    data = JSON.stringify(data);
+    data = JSON.parse(data.replace(/\bNaN\b/g, "null"));
     */
-    console.log(data)
     
-    let logs = parseLogMessages(_.filter(messages, (x) => {return x.msg_type == "L"}));
-    let dropouts = parseDropoutMessages(_.filter(messages, (x) => {return x.msg_type == "O"}));
-    let parameters = parseParameterMessages(_.filter(messages, (x) => {return x.msg_type == "P"}));
+    console.log(data);
+    // let logs = parseLogMessages(_.filter(messages, (x) => {return x.msg_type == "L"}));
+    // let dropouts = parseDropoutMessages(_.filter(messages, (x) => {return x.msg_type == "O"}));
+    // let parameters = parseParameterMessages(_.filter(messages, (x) => {return x.msg_type == "P"}));
 
     callback({
-        fileFormatVersion: ulogVersion,
-        loggingStartTime: loggingStartTime,
-        info: info,
-        multiInfo: multiInfo,
-        logs: logs,
+        // fileFormatVersion: ulogVersion,
+        // loggingStartTime: loggingStartTime,
+        // info: info,
+        // multiInfo: multiInfo,
+        // logs: logs,
         data: data,
-        dropouts: dropouts,
-        parameters: parameters
+        // dropouts: dropouts,
+        // parameters: parameters
     });
 }
+

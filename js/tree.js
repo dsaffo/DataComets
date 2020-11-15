@@ -1,5 +1,7 @@
 const Tree = (function (dispatch, data, dimensions) {
 
+  console.log("HI")
+  
   let colorCycle = 0;
 
 
@@ -98,16 +100,17 @@ const Tree = (function (dispatch, data, dimensions) {
     .attr('class', "collapsible-header")
     .html(String);
 
-
+  
   
   for (let i = 0; i < logs.length; i++) {
     let log_name = logs[i];
     let log_data = data[log_name];
-    //console.log(log_name, log_data[0])
     if (log_data.length === 0) {
       continue
     }
     let attribute_list = Object.keys(log_data[0]);
+    
+    
     
     ul.select("#" + log_name)
       .append('div')
@@ -121,14 +124,14 @@ const Tree = (function (dispatch, data, dimensions) {
       //let attribute_data = log_data;
 
       if (Array.isArray(log_data[0][attribute_name])){
-        continue
+        console.log(log_data[0][attribute_name], attribute_name)
       }
 
       for (let i = 0; i < log_data.length; i++) {
         attribute_data.push(log_data[i][attribute_name])
       }
 
-      console.log(log_name,attribute_name, attribute_data, log_data);
+      //console.log(log_name,attribute_name, attribute_data, log_data);
       
       if (log_name != "timestamp" && !allEqual(attribute_data)) {
         try {

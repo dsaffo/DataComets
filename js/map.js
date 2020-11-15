@@ -34,7 +34,7 @@ const Map = (function (dispatch, data, dimensions) {
     Map Initialization 
   */
 
-  if (data['vehicle_gps_position'] == undefined) {
+  if (data['vehicle_gps_position_0'] == undefined) {
     d3.select('#loadingText').html('No GPS Data, GPS data is currently required');
   }
 
@@ -52,19 +52,19 @@ const Map = (function (dispatch, data, dimensions) {
   var refLat;
 
   try {
-    refLon = data['vehicle_local_position'][0]['ref_lon'];
-    refLat = data['vehicle_local_position'][0]['ref_lat'];
+    refLon = data['vehicle_local_position_0'][0]['ref_lon'];
+    refLat = data['vehicle_local_position_0'][0]['ref_lat'];
   } catch {
     console.log('no ref lat/lon using back up');
-    refLon = data['vehicle_gps_position'][0]['lon'] / 10000000;
-    refLat = data['vehicle_gps_position'][0]['lat'] / 10000000;
+    refLon = data['vehicle_gps_position_0'][0]['lon'] / 10000000;
+    refLat = data['vehicle_gps_position_0'][0]['lat'] / 10000000;
     console.log(refLon, refLat);
   }
 
   if (refLon == undefined || refLat == undefined) {
     console.log('no ref lat/lon using back up');
-    refLon = data['vehicle_gps_position'][0]['lon'] / 10000000;
-    refLat = data['vehicle_gps_position'][0]['lat'] / 10000000;
+    refLon = data['vehicle_gps_position_0'][0]['lon'] / 10000000;
+    refLat = data['vehicle_gps_position_0'][0]['lat'] / 10000000;
     console.log(refLon, refLat);
   }
 
@@ -92,23 +92,24 @@ const Map = (function (dispatch, data, dimensions) {
 
 
   let selections = {
-    window: [0, data['vehicle_gps_position'].length - 3],
-    prevWindow: [0, data['vehicle_gps_position'].length - 3],
+    window: [0, data['vehicle_gps_position_0'].length - 3],
+    prevWindow: [0, data['vehicle_gps_position_0'].length - 3],
     attrData: [0]
   }
 
   let setPoints = [];
 
   try {
-    for (let i = 0; i < data['position_setpoint_triplet'].length; i++) {
+    for (let i = 0; i < data['position_setpoint_triplet_0'].length; i++) {
       setPoints.push({
-        lat: data['position_setpoint_triplet'][i]['previous.lat'],
-        lon: data['position_setpoint_triplet'][i]['previous.lon'],
+        lat: data['position_setpoint_triplet_0'][i]['previous']['lat'],
+        lon: data['position_setpoint_triplet_0'][i]['previous']['lon'],
       })
     }
   } catch (err) {
 
   }
+
 
   let lineGen = d3.line()
     .x(function (d) {
@@ -136,7 +137,7 @@ const Map = (function (dispatch, data, dimensions) {
     }) //.curve(d3.curveNatural)
 
 
-  log = 'vehicle_gps_position'
+  log = 'vehicle_gps_position_0'
 
 
   /*
@@ -151,6 +152,15 @@ const Map = (function (dispatch, data, dimensions) {
 
   map.on("moveend", update);
 
+  dispatch.on("mapped.map", function (chartInfo) {
+    console.log(chartInfo)
+    attrData = align(chartInfo.what);
+    selections.attrData = attrData;
+    colorScale = selectColorScale(attrData, 'Purples');
+    drawPath(data[log], attrData, colorScale);
+    update();
+
+  });
 
   dispatch.on('timelineBrushed.map', function (window) {
     let start = 'x';
@@ -200,27 +210,40 @@ const Map = (function (dispatch, data, dimensions) {
         return colorScale(selections.attrData[selections.window[1]]);
       })
       .attr('cx', function (d) {
-        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1] + 2]['lon'] / 10000000]).x
+        return map.latLngToLayerPoint([data['vehicle_gps_position_0'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position_0'][selections.window[1] + 2]['lon'] / 10000000]).x
       })
       .attr('cy', function (d) {
-        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1] + 2]['lon'] / 10000000]).y
+        return map.latLngToLayerPoint([data['vehicle_gps_position_0'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position_0'][selections.window[1] + 2]['lon'] / 10000000]).y
       });
 
     //update()
   });
 
+	dispatch.on('hover.map', function (time, idNo) {
 
-  let chartDeets = {};
-  dispatch.on("mapped", function (chartInfo) {
-    //chartDeets = chartInfo.what;
-    console.log(chartInfo)
-    attrData = align(chartInfo.what);
-    selections.attrData = attrData;
-    colorScale = selectColorScale(attrData, 'Purples');
-    drawPath(data[log], attrData, colorScale);
-    update();
+    if (idNo == undefined) {
+      d3.select(this).style('stroke-width', 20);
+    } else {
+      let index = 0;
+      for (let i = 0; i < data[log].length; i++) {
+        if (data[log][i]['timestamp'] / 10000000 >= time) {
+          index = i;
+          break;
+        }
+      }
+      d3.select('#seg' + index).style('stroke-width', 20);
+    }
 
-  });
+
+
+  })
+
+  dispatch.on('unhover.map', function () {
+    d3.selectAll('.pathSegments').style('stroke-width', 5)
+  })
+
+
+
 
   function align(what) {
     let pathTimes = [];
@@ -297,7 +320,7 @@ const Map = (function (dispatch, data, dimensions) {
     let topSvg = d3.select("#map-canvas").select("svg")
 
 
-    let estGps = svg.append('g').selectAll('path').data([data['vehicle_global_position']]).enter()
+    let estGps = svg.append('g').selectAll('path').data([data['vehicle_global_position_0']]).enter()
 
     estGps.append('path')
       .attr('stroke', '#F7AC40')
@@ -371,10 +394,10 @@ const Map = (function (dispatch, data, dimensions) {
         return colorScale(attrData[selections.window[1]]);
       })
       .attr('cx', function (d) {
-        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1]]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1]]['lon'] / 10000000]).x
+        return map.latLngToLayerPoint([data['vehicle_gps_position_0'][selections.window[1]]['lat'] / 10000000, data['vehicle_gps_position_0'][selections.window[1]]['lon'] / 10000000]).x
       })
       .attr('cy', function (d) {
-        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1]]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1]]['lon'] / 10000000]).y
+        return map.latLngToLayerPoint([data['vehicle_gps_position_0'][selections.window[1]]['lat'] / 10000000, data['vehicle_gps_position_0'][selections.window[1]]['lon'] / 10000000]).y
       })
       .attr('r', 10)
       .attr('class', 'head')
@@ -435,10 +458,10 @@ const Map = (function (dispatch, data, dimensions) {
     d3.select('.head')
       .attr('r', 10)
       .attr('cx', function (d) {
-        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1] + 2]['lon'] / 10000000]).x
+        return map.latLngToLayerPoint([data['vehicle_gps_position_0'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position_0'][selections.window[1] + 2]['lon'] / 10000000]).x
       })
       .attr('cy', function (d) {
-        return map.latLngToLayerPoint([data['vehicle_gps_position'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position'][selections.window[1] + 2]['lon'] / 10000000]).y
+        return map.latLngToLayerPoint([data['vehicle_gps_position_0'][selections.window[1] + 2]['lat'] / 10000000, data['vehicle_gps_position_0'][selections.window[1] + 2]['lon'] / 10000000]).y
       });
 
 
@@ -490,28 +513,7 @@ const Map = (function (dispatch, data, dimensions) {
 
   }
 
-  dispatch.on('hover.map', function (time, idNo) {
 
-    if (idNo == undefined) {
-      d3.select(this).style('stroke-width', 20);
-    } else {
-      let index = 0;
-      for (let i = 0; i < data[log].length; i++) {
-        if (data[log][i]['timestamp'] / 10000000 >= time) {
-          index = i;
-          break;
-        }
-      }
-      d3.select('#seg' + index).style('stroke-width', 20);
-    }
-
-
-
-  })
-
-  dispatch.on('unhover.map', function () {
-    d3.selectAll('.pathSegments').style('stroke-width', 5)
-  })
 
 
 
