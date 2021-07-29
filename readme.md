@@ -15,7 +15,7 @@ FIXED: Color map not generating correctly for some attributes with undifned valu
 
 <h1 id="using-data-comets">Using Data Comets</h1>
 <h2 id="hosted-version">Hosted Version</h2>
-<p>To try out Data Comets for yourself you can visit <a href="https://www.datacomets.com">datacomets.com</a>. The hosted version is limited to logs smaller than <strong>32mb</strong>. For larger logs and better performance/load times please use the local version. Uploaded logs are not saved once they are parsed and displayed. Refreshing the page will delete the log data from your browser as well.</p>
+<p>To try out Data Comets for yourself you can visit <a href="http://www.datacomets.com/">datacomets.com</a>. The hosted version is limited to logs smaller than <strong>32mb</strong>. For larger logs and better performance/load times please use the local version. Uploaded logs are not saved once they are parsed and displayed. Refreshing the page will delete the log data from your browser as well.</p>
 <h2 id="local-version">Local Version</h2>
 <p>You can use Data Comets locally with python 3. Clone or download this repo, then using the terminal run the following commands in the directory.</p>
 <pre><code>pip install -r requirements.txt
