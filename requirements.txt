@@ -1,5 +1,5 @@
 Flask==2.3.2
 pandas==2.0.3
 pyulog==0.7.0
-gunicorn==21.2.0
+gunicorn==22.0.0
 Flask-Compress==1.13
