@@ -1,4 +1,4 @@
-Flask==2.3.2
+Flask==3.1.3
 pandas==2.0.3
 pyulog==0.7.0
 gunicorn==21.2.0
